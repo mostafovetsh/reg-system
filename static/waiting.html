@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة الانتظار — Waiting List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --border: #1e2d45;
+            --accent: #00c8ff;
+            --accent2: #7c3aed;
+            --text: #e2e8f0;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(0, 200, 255, 0.03) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(0, 200, 255, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            z-index: -1;
+        }
+
+        header {
+            padding: 40px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        header h1 {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--accent);
+            letter-spacing: 2px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .main-logo {
+            width: 150px;
+            height: auto;
+            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) 
+                    drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        main {
+            flex: 1;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .waiting-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .student-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .student-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 6px;
+            height: 100%;
+            background: var(--accent);
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .queue-box {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-size: 32px;
+            font-weight: 900;
+            font-family: 'monospace';
+            box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 100px;
+            grid-column: 1 / -1;
+            color: var(--border);
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 4px;
+        }
+
+        /* Call Effect for Top Card */
+        .top-card {
+            border-color: var(--accent);
+            transform: scale(1.05);
+            background: linear-gradient(rgba(0, 200, 255, 0.05), transparent);
+            box-shadow: 0 20px 60px rgba(0, 200, 255, 0.15);
+        }
+
+        .top-card .queue-box {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(0, 200, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 200, 255, 0); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    
+    <header>
+        <div class="logo-container">
+            <img src="/static/logo.png?v=3" alt="مركز فجر" class="main-logo">
+        </div>
+        <p>مركز فجر — FAJR CENTER</p>
+        <h1>قائمة الانتظار</h1>
+    </header>
+
+    <main style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh;">
+        <div id="waitingGrid" class="waiting-grid" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 40px;">
+            <div class="empty-msg">في انتظار البدء...</div>
+        </div>
+    </main>
+
+    <script>
+        let lastQueueNumbers = [];
+
+        async function updateList() {
+            try {
+                const res = await fetch('/api/waiting-list');
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderList(data.students);
+                }
+            } catch (e) {
+                console.error("Error fetching waiting list:", e);
+            }
+        }
+
+        function renderList(students) {
+            const grid = document.getElementById('waitingGrid');
+            if (!students || students.length === 0) {
+                grid.innerHTML = '<div class="empty-msg">في انتظار الطلاب...</div>';
+                lastQueueNumbers = [];
+                return;
+            }
+
+            // تحقق إذا كان هناك تغيير في البيانات
+            const currentNumbers = students.map(s => s.queue_number).join(',');
+            if (currentNumbers === lastQueueNumbers.join(',')) return;
+            
+            lastQueueNumbers = students.map(s => s.queue_number);
+            
+            // عرض الطالب الحالي (الأول في القائمة) بشكل كبير جداً في المنتصف
+            const current = students[0];
+            playNotification(current.name, current.queue_number);
+            
+            let html = `
+                <div class="student-card top-card" style="width: 100%; max-width: 800px; padding: 60px; flex-direction: column; text-align: center; gap: 30px;">
+                    <div class="student-info">
+                        <div style="font-size: 18px; color: var(--accent); margin-bottom: 10px; font-weight: 700; letter-spacing: 2px;">يتم الآن مناداة:</div>
+                        <div class="student-name" style="font-size: 48px; margin-bottom: 20px;">${current.name}</div>
+                    </div>
+                    <div class="queue-box" style="font-size: 120px; padding: 20px 60px; border-radius: 30px;">${current.queue_number}</div>
+                </div>
+            `;
+
+            // عرض الباقي بشكل أصغر تحتها إذا وجد
+            if (students.length > 1) {
+                html += `<div style="margin-top: 50px; width: 100%;"><h3 style="text-align:center; color: var(--text-muted); margin-bottom: 20px;">الانتظار التالي:</h3><div class="waiting-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">`;
+                for (let i = 1; i < students.length; i++) {
+                    const s = students[i];
+                    html += `
+                        <div class="student-card" style="padding: 20px;">
+                            <div class="student-name" style="font-size: 18px;">${s.name}</div>
+                            <div class="queue-box" style="font-size: 24px; padding: 8px 16px;">${s.queue_number}</div>
+                        </div>
+                    `;
+                }
+                html += `</div></div>`;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        // تحديث كل ثانية واحدة لضمان السرعة
+        setInterval(updateList, 1000);
+        
+        // لمنع تشغيل الصوت بدون تفاعل، سنضيف زر تشغيل في البداية
+        document.body.insertAdjacentHTML('afterbegin', `
+            <div id="audioOverlay" style="position:fixed; inset:0; background:rgba(10,14,26,0.9); z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px;">
+                <h2 style="color:#fff;">شاشة قائمة الانتظار جاهزة</h2>
+                <button onclick="startApp()" style="padding:15px 40px; background:var(--accent); border:none; border-radius:12px; color:#fff; font-weight:700; cursor:pointer; font-size:20px;">تفعيل الصوت والعرض</button>
+            </div>
+        `);
+
+        function startApp() {
+            document.getElementById('audioOverlay').remove();
+            updateList();
+        }
+
+        function playNotification(name, number) {
+            try {
+                // 1. صوت التنبيه (Ding)
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') return;
+                
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start();
+                osc.stop(audioContext.currentTime + 0.5);
+
+                // 2. النداء الصوتي (Arabic TTS)
+                setTimeout(() => {
+                    const msg = new SpeechSynthesisUtterance();
+                    msg.text = `رقم ${number} ، الطالب ${name} ، الرجاء التوجه للمراجعة`;
+                    msg.lang = 'ar-SA';
+                    msg.rate = 0.9;
+                    window.speechSynthesis.speak(msg);
+                }, 800);
+
+            } catch (e) {
+                console.log("Audio notification failed:", e);
+            }
+        }
+    </script>
+</body>
+</html>

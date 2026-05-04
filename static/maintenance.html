@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الموقع تحت الصيانة - شؤون الطلاب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --surface2: #1a2234;
+            --border: #1e2d45;
+            --accent: #00c8ff;
+            --accent2: #7c3aed;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .grid-bg {
+            position: fixed; inset: 0;
+            background-image: linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0; pointer-events: none;
+        }
+
+        .container {
+            position: relative; z-index: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 60px 40px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        .icon-container {
+            width: 120px;
+            height: 120px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 50px;
+            position: relative;
+        }
+
+        .icon-container::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.15); opacity: 0; }
+            100% { transform: scale(1); opacity: 0.3; }
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        p.description {
+            color: var(--text-muted);
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .info-box {
+            background: var(--surface2);
+            border: 1px dashed var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: right;
+        }
+
+        .info-box strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .contact-item {
+            font-size: 14px;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.03);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 13px;
+            color: #4b5563;
+        }
+
+        .glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0,200,255,0.1) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(40px);
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="glow" style="top: 10%; right: 10%;"></div>
+    <div class="glow" style="bottom: 10%; left: 10%;"></div>
+
+    <div class="container">
+        <div class="icon-container">
+            🛠️
+        </div>
+        
+        <h1>الموقع مغلق حالياً</h1>
+        
+        <p class="description">
+            نحن نقوم حالياً ببعض أعمال الصيانة والتحديثات لتوفير تجربة أفضل لكم.
+        </p>
+        
+        <div class="info-box">
+            <strong>تنبيه هام:</strong>
+            سيتم فتح باب التسجيل فور الانتهاء من التحديثات والإعلان عن الموعد الرسمي قريباً.
+        </div>
+        
+        <div class="contact-info">
+            <div class="contact-item">📧 info@university.edu</div>
+            <div class="contact-item">📞 +20 123 456 789</div>
+        </div>
+        
+        <div class="footer-note">
+            <p>نعتذر عن أي إزعاج، شكراً لتفهمكم</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Data and Uploads (Crucial to exclude sensitive student data)
+uploads/
+students_data.json
+waiting_list.json
+*.tmp
+check_fields.py
+setup_odoo_data.py
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini

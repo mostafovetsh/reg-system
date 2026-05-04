@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الطلاب — Student Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1a2234;
+      --border: #1e2d45;
+      --accent: #00c8ff;
+      --accent2: #7c3aed;
+      --gold: #f59e0b;
+      --success: #10b981;
+      --error: #ef4444;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      direction: rtl;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0, 200, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124, 58, 237, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 200, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 15px 40px;
+      }
+      .header {
+        margin-bottom: 30px;
+      }
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo-container {
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .main-logo {
+      width: 150px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) 
+              drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
+      transition: all 0.3s ease;
+    }
+
+    .main-logo:hover {
+      transform: scale(1.05);
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 200, 255, 0.08);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      color: var(--accent);
+      padding: 6px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .header-badge::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(1.4);
+      }
+    }
+
+    .header h1 {
+      font-size: clamp(28px, 5vw, 46px);
+      font-weight: 900;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 15px;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    /* Steps indicator */
+    .steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 48px;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      transition: all 0.4s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step.active .step-num {
+      border-color: var(--accent);
+      background: rgba(0, 200, 255, 0.15);
+      color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+    }
+
+    .step.done .step-num {
+      border-color: var(--success);
+      background: var(--success);
+      color: #fff;
+    }
+
+    .step.done .step-num::after {
+      content: '✓';
+    }
+
+    .step-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .step.active .step-label {
+      color: var(--accent);
+    }
+
+    .step.done .step-label {
+      color: var(--success);
+    }
+
+    .step-line {
+      height: 2px;
+      width: 80px;
+      background: var(--border);
+      margin-bottom: 18px;
+      transition: background 0.4s;
+    }
+
+    .step-line.done {
+      background: var(--success);
+    }
+
+    @media (max-width: 600px) {
+      .steps {
+        margin-bottom: 32px;
+        gap: 0;
+      }
+      .step-line {
+        width: 35px;
+      }
+      .step-num {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+      }
+      .step-label {
+        display: none; /* Hide labels on mobile to save space */
+      }
+      .step-line {
+        margin-bottom: 0;
+        margin-top: 16px; /* Align with center of step-num */
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      display: none;
+      animation: fadeUp 0.4s ease;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 20px 16px;
+        border-radius: 16px;
+      }
+      .card-title {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+    }
+
+    .card.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(ellipse, rgba(0, 200, 255, 0.04), transparent 70%);
+      pointer-events: none;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
+
+    .icon-blue {
+      background: rgba(0, 200, 255, 0.12);
+    }
+
+    .icon-purple {
+      background: rgba(124, 58, 237, 0.15);
+    }
+
+    .icon-gold {
+      background: rgba(245, 158, 11, 0.12);
+    }
+
+    .icon-green {
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    /* Upload zones */
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .upload-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(0, 200, 255, 0.04);
+    }
+
+    .upload-zone.uploaded {
+      border-color: var(--success);
+      border-style: solid;
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .upload-zone input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .upload-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .upload-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .upload-preview {
+      width: 100%;
+      max-height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      display: none;
+    }
+
+    .upload-zone.uploaded .upload-preview {
+      display: block;
+    }
+
+    .upload-zone.uploaded .upload-icon {
+      display: none;
+    }
+
+    .upload-zone.uploaded .upload-title {
+      font-size: 13px;
+      color: var(--success);
+    }
+
+    /* Extract button */
+    .btn-extract {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(124, 58, 237, 0.15));
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      border-radius: 14px;
+      color: var(--accent);
+      font-family: 'Cairo', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-extract:hover:not(:disabled) {
+      background: linear-gradient(135deg, rgba(0, 200, 255, 0.25), rgba(124, 58, 237, 0.25));
+      box-shadow: 0 0 30px rgba(0, 200, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-extract:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Loading */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(0, 200, 255, 0.3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Form fields */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-grid .full {
+      grid-column: 1 / -1;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.3px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.25s;
+      direction: rtl;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.08);
+      background: rgba(0, 200, 255, 0.03);
+    }
+
+    .field input.auto-filled {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.04);
+      color: #fff;
+    }
+
+    .field input.auto-filled.failed {
+      border-color: rgba(239, 68, 68, 0.4) !important;
+      background: rgba(239, 68, 68, 0.04) !important;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .field select option {
+      background: var(--surface);
+    }
+
+    /* Status Indicators - Hidden as per user request */
+    .status-indicator {
+      display: none !important;
+    }
+
+    .field input.valid, 
+    .field select.valid, 
+    .field textarea.valid {
+      border-color: var(--success) !important;
+      background: rgba(16, 185, 129, 0.05) !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .field input.failed, 
+    .field select.failed, 
+    .field textarea.failed,
+    .field input.expired {
+      border-color: var(--error) !important;
+      background: rgba(239, 68, 68, 0.05) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    }
+    .manual-hint {
+      color: var(--error);
+      font-size: 11px;
+      margin-top: 4px;
+      display: none;
+      font-weight: 600;
+    }
+    .failed + .manual-hint, .failed + .field-tag + .manual-hint {
+      display: block;
+    }
+
+    .field-action-link {
+      font-size: 11px;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+      margin-right: 10px;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .field-action-link:hover { opacity: 0.8; }
+
+    /* Map Modal */
+    #map-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .map-container {
+      width: 100%;
+      max-width: 800px;
+      height: 80vh;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    #map { height: 100%; width: 100%; }
+    .close-map {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 1001;
+      background: var(--error);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    @keyframes flashRed {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+      position: relative;
+    }
+
+    .divider span {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--surface);
+      padding: 0 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #00c8ff, #7c3aed);
+      border: none;
+      border-radius: 16px;
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-submit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn-submit:hover::before {
+      opacity: 1;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 200, 255, 0.3);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      min-width: 280px;
+      justify-content: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      border-color: rgba(16, 185, 129, 0.4);
+      color: var(--success);
+    }
+
+    .toast.error {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--error);
+    }
+
+    /* Success screen */
+    #step-success {
+      text-align: center;
+      padding: 60px 32px;
+    }
+
+    .success-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      margin: 0 auto 28px;
+      position: relative;
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.05);
+      animation: ringPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes ringPop {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .success-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .success-sub {
+      color: var(--text-muted);
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .queue-display {
+      font-size: 96px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 20px 0;
+      text-shadow: 0 10px 40px rgba(0, 200, 255, 0.2);
+      font-family: 'Tajawal', sans-serif;
+      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .code-box {
+      background: var(--surface2);
+      border: 2px solid rgba(0, 200, 255, 0.25);
+      border-radius: 20px;
+      padding: 28px;
+      display: inline-block;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .code-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .code-value {
+      font-size: 38px;
+      font-weight: 900;
+      font-family: 'Tajawal', monospace;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 3px;
+    }
+
+    .code-copy {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 200, 255, 0.1);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: var(--accent);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .code-copy:hover {
+      background: rgba(0, 200, 255, 0.2);
+    }
+
+    .btn-new {
+      padding: 14px 40px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      color: var(--text-dim);
+      font-family: 'Cairo', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-new:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Alert boxes */
+    .alert {
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .alert-info {
+      background: rgba(0, 200, 255, 0.07);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      color: #7dd3fc;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.07);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.07);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+    }
+
+    /* Back button */
+    .btn-back {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+    }
+
+    .btn-back:hover {
+      color: var(--accent);
+    }
+
+    .tip-box {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .tip-box .icon {
+      font-size: 20px;
+    }
+
+    .tip-box .tip-text {
+      font-size: 13px;
+      color: #f59e0b;
+      line-height: 1.5;
+      text-align: right;
+      width: 100%;
+    }
+
+    .tip-box .tip-text b {
+      color: #fff;
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grid-bg"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-container">
+        <img src="/static/logo.png?v=3" alt="مركز فجر" class="main-logo">
+      </div>
+      <div class="header-badge">🎓 نظام تسجيل الطلاب بمركز فجر</div>
+      <h1>تسجيل طالب جديد</h1>
+      <p>ارفع صورة جواز السفر لاستخراج البيانات تلقائياً</p>
+    </div>
+
+    <!-- Steps -->
+    <div class="steps">
+      <div class="step active" id="si-1">
+        <div class="step-num">1</div>
+        <div class="step-label">سياسات المركز</div>
+      </div>
+      <div class="step-line" id="sl-1"></div>
+      <div class="step" id="si-2" style="opacity:.4">
+        <div class="step-num">2</div>
+        <div class="step-label">رفع المستندات</div>
+      </div>
+      <div class="step-line" id="sl-2"></div>
+      <div class="step" id="si-3" style="opacity:.4">
+        <div class="step-num">3</div>
+        <div class="step-label">مراجعة البيانات</div>
+      </div>
+      <div class="step-line" id="sl-3"></div>
+      <div class="step" id="si-4" style="opacity:.4">
+        <div class="step-num">4</div>
+        <div class="step-label">التسجيل</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Policies -->
+    <div class="card active" id="step-policy">
+      <div class="card-title">
+        <span class="icon icon-gold">📜</span>
+        سياسات وقواعد مركز فجر
+      </div>
+      
+      <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; font-size: 14px; line-height: 1.8; color: var(--text-dim); max-height: 350px; overflow-y: auto;">
+        <p style="color: var(--accent); font-weight: 700; margin-bottom: 15px;">عزيزي الطالب، يرجى قراءة السياسات التالية بعناية قبل البدء في عملية التسجيل:</p>
+        
+        <ul style="list-style: none; padding: 0;">
+          <li style="margin-bottom: 12px; display: flex; gap: 10px;">
+            <span>📍</span> 
+            <span><b>الالتزام بالمواعيد:</b> يجب الحضور إلى المحاضرات قبل الموعد المحدد بـ 10 دقائق على الأقل.</span>
+          </li>
+          <li style="margin-bottom: 12px; display: flex; gap: 10px;">
+            <span>🚫</span> 
+            <span><b>سياسة الإلغاء:</b> في حال الرغبة في تأجيل أو إلغاء دورة تدريبية، يجب إخطار الإدارة قبل موعدها بـ 48 ساعة.</span>
+          </li>
+          <li style="margin-bottom: 12px; display: flex; gap: 10px;">
+            <span>📄</span> 
+            <span><b>صحة البيانات:</b> يقر الطالب بأن كافة البيانات والمستندات المرفقة صحيحة ومطابقة للواقع وتحت مسؤوليته الشخصية.</span>
+          </li>
+          <li style="margin-bottom: 12px; display: flex; gap: 10px;">
+            <span>💰</span> 
+            <span><b>المصروفات الدراسية:</b> المصروفات المدفوعة غير قابلة للاسترداد بعد بدء الدورة التدريبية إلا في حالات استثنائية وبموافقة الإدارة.</span>
+          </li>
+          <li style="margin-bottom: 12px; display: flex; gap: 10px;">
+            <span>🤝</span> 
+            <span><b>السلوك العام:</b> يتعهد الطالب بالالتزام بحسن السير والسلوك داخل أروقة المركز واحترام كافة المعلمين والزملاء.</span>
+          </li>
+          <li style="margin-bottom: 12px; display: flex; gap: 10px;">
+            <span>⚠️</span> 
+            <span><b>المفقودات:</b> المركز غير مسؤول عن فقدان أي مقتنيات شخصية داخل القاعات؛ لذا يرجى الحفاظ على متعلقاتكم.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 10px; background: rgba(0, 200, 255, 0.05); border-radius: 8px; border: 1px solid rgba(0, 200, 255, 0.1);">
+        <input type="checkbox" id="policy-check" style="width: 20px; height: 20px; cursor: pointer;" onchange="document.getElementById('btn-agree').disabled = !this.checked">
+        <label for="policy-check" style="font-size: 14px; color: #fff; cursor: pointer; font-weight: 600;">أوافق على كافة الشروط والسياسات المذكورة أعلاه</label>
+      </div>
+
+      <button class="btn-submit" id="btn-agree" onclick="goToUpload()" disabled>
+        الموافقة والبدء في التسجيل ←
+      </button>
+    </div>
+
+    <!-- Step 2: Upload -->
+    <div class="card" id="step-upload">
+      <div class="card-title">
+        <button class="btn-back" onclick="goBackToPolicy()" style="margin-bottom:0; margin-left:15px; padding:0">←</button>
+        <span class="icon icon-blue">📎</span>
+        رفع المستندات
+      </div>
+
+      <div class="upload-grid">
+        <!-- Passport upload -->
+        <div class="upload-zone" id="zone-passport">
+          <input type="file" id="passport-input" accept="image/*" onchange="handleUpload(this,'passport')">
+          <img class="upload-preview" id="passport-preview" src="" alt="">
+          <div class="upload-icon">🛂</div>
+          <div class="upload-title">جواز السفر</div>
+          <div class="upload-sub">جميع صيغ الصور مدعومة — انقر أو اسحب الصورة</div>
+        </div>
+
+        <!-- ID upload -->
+        <div class="upload-zone" id="zone-id">
+          <input type="file" id="id-input" accept="image/*" onchange="handleUpload(this,'id')">
+          <img class="upload-preview" id="id-preview" src="" alt="">
+          <div class="upload-icon">🪪</div>
+          <div class="upload-title">صورة الإقامة *</div>
+          <div class="upload-sub">جميع صيغ الصور مدعومة — انقر أو اسحب الصورة</div>
+        </div>
+      </div>
+
+      <button class="btn-extract" id="btn-extract" onclick="extractData()" disabled>
+        <span id="extract-icon">⚡</span>
+        <span id="extract-text">استخراج البيانات تلقائياً</span>
+      </button>
+
+      <div class="alert alert-info" style="margin-top:20px">
+        ℹ️ سيتم استخراج بياناتك تلقائياً من جواز السفر باستخدام تقنية OCR وتحليل MRZ
+      </div>
+    </div>
+
+    <!-- Step 3: Review & Complete -->
+    <div class="card" id="step-review">
+      <button class="btn-back" onclick="goBack()">← رجوع</button>
+
+      <div class="tip-box">
+        <span class="icon">💡</span>
+        <div class="tip-text">
+          <strong>نصيحة لتسريع التسجيل:</strong>
+          صور الجواز في إضاءة جيدة <b>بدون فلاش</b>، وتأكد من ظهور الأركان الأربعة بوضوح.
+        </div>
+      </div>
+
+      <!-- Auto-filled data -->
+      <div class="card-title">
+        <span class="icon icon-green">✅</span>
+        البيانات المستخرجة تلقائياً
+      </div>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label>الإسم بالكامل من الجواز (Full Name from Passport)</label>
+          <input type="text" id="f-fullname" placeholder="—" oninput="validateField(this)">
+          <span class="field-tag" id="tag-name" style="display:none">✓ مستخرج تلقائياً</span>
+        </div>
+        <div class="field">
+          <label>رقم الجواز</label>
+          <input type="text" id="f-passport" placeholder="—" oninput="validateField(this)">
+          <span class="field-tag" id="tag-passport" style="display:none">✓ مستخرج تلقائياً</span>
+          <div class="manual-hint">⚠️ لم يتم التعرف عليه.. يرجى الإدخال يدوياً</div>
+        </div>
+        <div class="field">
+          <label>الجنسية (كما في أودوو) *</label>
+          <select id="f-nationality" onchange="validateField(this)" required>
+            <option value="">— جاري تحميل الجنسيات... —</option>
+          </select>
+          <span class="field-tag" id="tag-nat" style="display:none">✓ تم الربط من الجواز</span>
+          <div class="manual-hint">⚠️ لم يتم التعرف عليها.. يرجى الاختيار يدوياً</div>
+        </div>
+        <div class="field">
+          <label>تاريخ الميلاد *</label>
+          <input type="date" id="f-dob" onchange="validateField(this)" required>
+          <span class="field-tag" id="tag-dob" style="display:none">✓ مستخرج تلقائياً</span>
+          <div class="manual-hint">⚠️ يرجى الإدخال يدوياً</div>
+        </div>
+        <div class="field">
+          <label>تاريخ انتهاء الجواز *</label>
+          <input type="date" id="f-expiry" onchange="validateField(this)" required>
+          <span class="field-tag" id="tag-exp" style="display:none">✓ مستخرج تلقائياً</span>
+          <div class="manual-hint">⚠️ يرجى الإدخال يدوياً</div>
+        </div>
+      </div>
+
+      <div class="divider"><span>أكمل البيانات التالية بنفسك</span></div>
+
+      <!-- Manual fields -->
+      <div class="card-title" style="margin-bottom:20px">
+        <span class="icon icon-purple">✏️</span>
+        بيانات إضافية
+      </div>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label>الإسم باللغة العربية *</label>
+          <input type="text" id="f-name-arabic" placeholder="أدخل اسمك بالكامل باللغة العربية" oninput="validateField(this)" required>
+        </div>
+        <div class="field">
+          <label>الجنس *</label>
+          <select id="f-gender" onchange="validateField(this)" required>
+            <option value="">— اختر الجنس —</option>
+            <option value="male">ذكر (Male)</option>
+            <option value="female">أنثى (Female)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>رقم التليفون *</label>
+          <input type="tel" id="f-phone" placeholder="01XXXXXXXXX" oninput="validateField(this)">
+        </div>
+        <div class="field">
+          <label>رقم الواتساب</label>
+          <input type="tel" id="f-whatsapp" placeholder="01XXXXXXXXX (لو مختلف)" oninput="validateField(this)">
+        </div>
+        <div class="field full">
+          <label>البريد الإلكتروني *</label>
+          <input type="email" id="f-email" placeholder="example@email.com" dir="ltr" oninput="validateField(this)" required>
+        </div>
+        <div class="field full">
+          <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="margin-bottom:0">العنوان بالكامل (في مصر) *</label>
+            <div style="display:flex; gap:10px">
+              <span class="field-action-link" onclick="getGPSLocation(event)">📍 موقعي</span>
+              <span class="field-action-link" onclick="openMapModal()">🗺️ الخريطة</span>
+            </div>
+          </div>
+          <textarea id="f-address" placeholder="المحافظة، المدينة، الشارع..." oninput="validateField(this)" required></textarea>
+        </div>
+      </div>
+
+      <button type="button" class="btn-submit" id="next-2" onclick="submitForm(event)">
+        💾 حفظ وتسجيل البيانات
+      </button>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div class="card" id="step-success-card">
+      <div id="step-success">
+        <div class="success-ring">🎉</div>
+        <div class="success-title">تم التسجيل بنجاح!</div>
+        <div class="success-sub">رقم الانتظار الخاص بك هو:</div>
+        <div id="student-queue-num" class="queue-display">---</div>
+      </div>
+
+      <br>
+      <button class="btn-new" onclick="resetForm()">+ تسجيل طالب جديد</button>
+    </div>
+  </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Map Modal HTML -->
+  <div id="map-modal">
+    <div class="map-container">
+      <button class="close-map" onclick="closeMapModal()">إغلاق الخريطة ✖</button>
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <script>
+    let passportUploaded = false;
+    let idUploaded = false;
+    let extractedData = {};
+    let studentCode = '';
+    let passportFileName = '';
+    let idFileName = '';
+
+    function validateField(el) {
+      const id = el.id;
+      const val = el.value.trim();
+      
+      let isValid = val.length > 0;
+      if (val.includes('<') || val.includes('|') || val.includes('None') || val.includes('手')) {
+        isValid = false;
+      }
+
+      if (isValid) {
+        el.classList.remove('failed');
+        el.classList.add('valid');
+        // إخفاء التاج لو المستخدم عدل يدوي
+        const tag = el.parentElement.querySelector('.field-tag');
+        if (tag) tag.style.display = 'none';
+      } else {
+        el.classList.remove('valid');
+        if (val.length > 0) el.classList.add('failed');
+        else el.classList.remove('failed'); // مسح الأحمر لو الحقل فاضي عشان الـ hint يختفي مؤقتاً أو يظهر حسب الحالة
+      }
+      checkFormReady();
+    }
+
+    function checkFormReady() {
+      const mandatory = [
+        'f-fullname', 'f-passport', 'f-nationality', 'f-dob', 'f-expiry', 
+        'f-name-arabic', 'f-phone', 'f-email', 'f-address', 'f-gender'
+      ];
+      let allGood = true;
+      mandatory.forEach(id => {
+        const el = document.getElementById(id);
+        const val = el ? el.value.trim() : '';
+        
+        // إذا كان الحقل فارغاً وهو إجباري، نعتبره خطأ
+        if (!val || (el && el.classList.contains('failed'))) {
+          allGood = false;
+        }
+      });
+      const btn = document.getElementById('next-2');
+      if (btn) btn.disabled = !allGood;
+    }
+
+    // ─── Upload handlers ───────────────────────────────────────
+    function handleUpload(input, type) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const zone = document.getElementById(`zone-${type}`);
+      const preview = document.getElementById(`${type}-preview`);
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        preview.src = e.target.result;
+        zone.classList.add('uploaded');
+        zone.querySelector('.upload-title').textContent =
+          type === 'passport' ? '✓ جواز السفر جاهز' : '✓ صورة الإقامة جاهزة';
+        zone.querySelector('.upload-sub').textContent = file.name;
+      };
+      reader.readAsDataURL(file);
+
+      if (type === 'passport') {
+        passportUploaded = true;
+      } else if (type === 'id') {
+        idUploaded = true;
+      }
+
+      if (passportUploaded && idUploaded) {
+        document.getElementById('btn-extract').disabled = false;
+      }
+    }
+
+    // Drag & drop
+    ['passport', 'id'].forEach(type => {
+      const zone = document.getElementById(`zone-${type}`);
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const input = document.getElementById(`${type}-input`);
+        input.files = e.dataTransfer.files;
+        handleUpload(input, type);
+      });
+    });
+
+    // ─── Extract data ───────────────────────────────────────────
+    async function extractData() {
+      const passportFile = document.getElementById('passport-input').files[0];
+      const idFile = document.getElementById('id-input').files[0];
+      if (!passportFile || !idFile) {
+        showToast('❗ يرجى رفع جواز السفر وصورة الإقامة أولاً', 'error');
+        return;
+      }
+
+      // Show loading
+      const btn = document.getElementById('btn-extract');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> جاري الرفع والتحليل...';
+
+      try {
+        const formData = new FormData();
+        formData.append('file', passportFile);
+        formData.append('id_file', idFile);
+
+        const res = await fetch('/api/extract-passport', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+          extractedData = data;
+          passportFileName = data.file_name;
+          idFileName = data.id_file_name;
+          fillForm(data);
+          goToReview();
+          showToast('✅ تم الرفع واستخراج البيانات!', 'success');
+        } else {
+          passportFileName = data.file_name;
+          idFileName = data.id_file_name;
+          showToast('⚠️ ' + (data.error || 'لم يتم التعرف على MRZ'), 'error');
+          goToReview();
+        }
+      } catch (err) {
+        showToast('❌ خطأ في الاتصال بالسيرفر', 'error');
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>⚡</span> <span>استخراج البيانات تلقائياً</span>';
+      }
+    }
+
+    // ─── مطابقة الجنسية بالـ Code (مشتركة بين fillForm و applyNationalityIfExtracted) ───
+    function applyNationalityCode(selectEl, code2) {
+      if (!code2) return false;
+      const upper = code2.toUpperCase();
+      for (let option of selectEl.options) {
+        if ((option.getAttribute('data-code') || '').toUpperCase() === upper) {
+          selectEl.value = option.value;
+          selectEl.classList.add('auto-filled', 'valid');
+          selectEl.classList.remove('failed');
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function fillForm(data) {
+      const fullName = ((data.given_names || '') + ' ' + (data.surname || '')).trim();
+      const nameEl = document.getElementById('f-fullname');
+      const nameTag = document.getElementById('tag-name');
+      const nameBad = data.name_unreliable === true || data.extract_quality === 'low';
+
+      if (fullName && !fullName.includes('يرجى كتابة') && !nameBad) {
+        nameEl.value = fullName;
+        nameEl.classList.add('auto-filled', 'valid');
+        nameTag.style.display = 'flex';
+        translateNameToArabic(true);
+      } else {
+        if (nameBad) {
+          nameEl.value = '';
+          const arEl = document.getElementById('f-name-arabic');
+          if (arEl) arEl.value = '';
+          if (fullName) showToast('⚠️ الاسم المستخرج غير موثوق — أدخل الاسم يدويًا من الجواز', 'error');
+        }
+        nameEl.classList.add('failed');
+        nameTag.style.display = 'none';
+      }
+
+      const map = {
+        'f-passport': 'passport_number',
+        'f-nationality': 'nationality',
+        'f-dob': 'birth_date',
+        'f-expiry': 'expiry_date'
+      };
+
+      for (const [fieldId, key] of Object.entries(map)) {
+        const val = data[key] || '';
+        const el = document.getElementById(fieldId);
+        if (!el) continue;
+
+        if (fieldId === 'f-nationality') {
+            const found = applyNationalityCode(el, data.nationality_code2);
+            if (!found) {
+                el.classList.add('failed');
+                el.classList.remove('valid', 'auto-filled');
+            }
+        } else if (val && !val.includes('يرجى') && !val.includes('Write') && !val.includes('Manual')) {
+          // التواريخ تصل بصيغة YYYY-MM-DD|EXPIRED أو YYYY-MM-DD
+          let finalVal = val;
+          let isExpired = false;
+          
+          if (val.includes('|EXPIRED')) {
+              finalVal = val.split('|')[0];
+              isExpired = true;
+          }
+
+          el.value = finalVal;
+          
+          if (el.type === 'date' && el.value !== finalVal) {
+              el.classList.add('failed');
+              el.classList.remove('valid', 'auto-filled');
+              el.value = '';
+          } else {
+              el.classList.add('auto-filled', 'valid');
+              el.classList.remove('failed');
+              
+              // إظهار تنبيه إذا كان منتهي الصلاحية
+              if (isExpired && fieldId === 'f-expiry') {
+                  const warning = document.createElement('div');
+                  warning.className = 'error-msg';
+                  warning.style.color = '#ff4d4d';
+                  warning.style.fontSize = '0.8rem';
+                  warning.style.marginTop = '5px';
+                  warning.style.fontWeight = '600';
+                  warning.id = 'expiry-warning';
+                  warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> عذراً، هذا الجواز منتهي الصلاحية!';
+                  
+                  // إزالة أي تحذير قديم
+                  const old = el.parentNode.querySelector('#expiry-warning');
+                  if (old) old.remove();
+                  
+                  el.parentNode.appendChild(warning);
+                  
+                  // تحويل الخانة للون الأحمر (expired) دون إظهار "يرجى الإدخال يدوياً"
+                  el.classList.remove('valid');
+                  el.classList.add('expired');
+              }
+          }
+        } else {
+          el.value = '';
+          el.classList.add('failed');
+          el.classList.remove('valid', 'auto-filled');
+        }
+      }
+
+      // ─── الجنس من الجواز تلقائياً ─────────────────────────────
+      const gEl = document.getElementById('f-gender');
+      if (data.gender) {
+        const g = data.gender.trim().toUpperCase();
+        const genderVal = (g === 'M' || g === 'MALE')   ? 'male'
+                        : (g === 'F' || g === 'FEMALE') ? 'female'
+                        : '';
+        if (genderVal) {
+          gEl.value = genderVal;
+          gEl.classList.add('auto-filled', 'valid');
+          gEl.classList.remove('failed');
+        } else {
+          gEl.classList.add('failed');
+        }
+      } else {
+        // لا توجد بيانات جنس من الجواز — اتركه للمستخدم (بدون أحمر)
+        gEl.classList.remove('failed', 'valid', 'auto-filled');
+      }
+      checkFormReady();
+    }
+
+    // ─── Navigation ─────────────────────────────────────────────
+    function goToUpload() {
+      document.getElementById('step-policy').classList.remove('active');
+      document.getElementById('step-upload').classList.add('active');
+
+      document.getElementById('si-1').classList.add('done');
+      document.getElementById('si-1').classList.remove('active');
+      document.getElementById('si-2').style.opacity = '1';
+      document.getElementById('si-2').classList.add('active');
+      document.getElementById('sl-1').classList.add('done');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goBackToPolicy() {
+      document.getElementById('step-upload').classList.remove('active');
+      document.getElementById('step-policy').classList.add('active');
+      
+      document.getElementById('si-1').classList.remove('done');
+      document.getElementById('si-1').classList.add('active');
+      document.getElementById('si-2').style.opacity = '0.4';
+      document.getElementById('si-2').classList.remove('active');
+      document.getElementById('sl-1').classList.remove('done');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goToReview() {
+      document.getElementById('step-upload').classList.remove('active');
+      document.getElementById('step-review').classList.add('active');
+
+      document.getElementById('si-2').classList.add('done');
+      document.getElementById('si-2').classList.remove('active');
+      document.getElementById('si-3').style.opacity = '1';
+      document.getElementById('si-3').classList.add('active');
+      document.getElementById('sl-2').classList.add('done');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goBack() {
+      document.getElementById('step-review').classList.remove('active');
+      document.getElementById('step-upload').classList.add('active');
+      
+      document.getElementById('si-2').classList.remove('done');
+      document.getElementById('si-2').classList.add('active');
+      document.getElementById('si-3').style.opacity = '0.4';
+      document.getElementById('si-3').classList.remove('active');
+      document.getElementById('sl-2').classList.remove('done');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ─── Submit form ────────────────────────────────────────────
+    async function submitForm(e) {
+      if (e) e.preventDefault();
+      const mandatory = [
+        { id: 'f-fullname', name: 'الإسم بالكامل من الجواز' },
+        { id: 'f-passport', name: 'رقم الجواز' },
+        { id: 'f-nationality', name: 'الجنسية' },
+        { id: 'f-dob', name: 'تاريخ الميلاد' },
+        { id: 'f-expiry', name: 'تاريخ انتهاء الجواز' },
+        { id: 'f-name-arabic', name: 'الإسم باللغة العربية' },
+        { id: 'f-gender', name: 'الجنس' },
+        { id: 'f-phone', name: 'رقم التليفون' },
+        { id: 'f-email', name: 'البريد الإلكتروني' },
+        { id: 'f-address', name: 'العنوان' }
+      ];
+
+      for (let field of mandatory) {
+          const el = document.getElementById(field.id);
+          const val = el ? el.value.trim() : '';
+          if (!val || (el && el.classList.contains('failed'))) {
+              showToast(`❗ يرجى التأكد من حقل: ${field.name}`, 'error');
+              if (el) {
+                  el.classList.add('failed');
+                  el.focus();
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+              return;
+          }
+      }
+
+      if (!idFileName) { showToast('❗ يرجى رفع صورة الإقامة', 'error'); return; }
+
+      const btn = document.getElementById('next-2');
+      btn.disabled = true;
+      btn.textContent = 'جاري الحفظ...';
+
+      // استخراج اللقب والأسماء من حقل الإسم بالكامل (تقريبي)
+      const fullNameParts = document.getElementById('f-fullname').value.trim().split(' ');
+      const surname = fullNameParts.length > 0 ? fullNameParts[fullNameParts.length - 1] : '';
+      const givenNames = fullNameParts.length > 1 ? fullNameParts.slice(0, -1).join(' ') : fullNameParts[0] || '';
+
+      const payload = {
+        surname: surname,
+        given_names: givenNames,
+        passport_number: document.getElementById('f-passport').value,
+        nationality: document.getElementById('f-nationality').value,
+        birth_date: document.getElementById('f-dob').value,
+        expiry_date: document.getElementById('f-expiry').value,
+        phone: document.getElementById('f-phone').value,
+        whatsapp: document.getElementById('f-whatsapp').value,
+        email: document.getElementById('f-email').value,
+        name_arabic: document.getElementById('f-name-arabic').value,
+        address: document.getElementById('f-address').value,
+        gender: document.getElementById('f-gender').value,
+        photo_passport: passportFileName,
+        photo_id: idFileName
+      };
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        // التحقق من أن الـ response وصل صح
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          showToast(`❌ ${errData.error || ('خطأ ' + res.status)}`, 'error');
+          btn.disabled = false;
+          btn.textContent = 'حفظ وتسجيل البيانات';
+          return;
+        }
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          showToast('❌ خطأ في قراءة رد السيرفر', 'error');
+          console.error('JSON Parse Error:', jsonErr);
+          return;
+        }
+
+        if (data && data.success) {
+          studentCode = data.student_code;
+          document.getElementById('student-queue-num').textContent = data.queue_number || data.student_code || '---';
+          showStep4();
+        } else {
+          showToast('❌ ' + (data.error || 'حدث خطأ غير معروف'), 'error');
+        }
+      } catch (err) {
+        // هنا بس لو في مشكلة شبكة حقيقية (السيرفر مش شغال أصلاً)
+        console.error('Network Error:', err);
+        showToast('❌ تعذر الوصول للسيرفر — تأكد أن التطبيق شغال', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 حفظ وتسجيل البيانات';
+      }
+    }
+
+    function showStep4() {
+      document.getElementById('step-review').classList.remove('active');
+      document.getElementById('step-success-card').classList.add('active');
+      
+      document.getElementById('si-3').classList.add('done');
+      document.getElementById('si-3').classList.remove('active');
+      document.getElementById('si-4').style.opacity = '1';
+      document.getElementById('si-4').classList.add('done');
+      document.getElementById('sl-3').classList.add('done');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function copyCode() {
+      navigator.clipboard.writeText(studentCode)
+        .then(() => showToast('✅ تم نسخ الرقم!', 'success'));
+    }
+
+    function resetForm() {
+      location.reload();
+    }
+
+    // ─── Toast ───────────────────────────────────────────────────
+    function showToast(msg, type = 'info') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // ─── Map Logic ─────────────────────────────────────────────
+    let leafletMap = null;
+    let mapMarker = null;
+
+    function openMapModal() {
+      document.getElementById('map-modal').style.display = 'flex';
+      if (!leafletMap) {
+        // إنشاء الخريطة لأول مرة متمركزة في القاهرة
+        leafletMap = L.map('map').setView([30.0444, 31.2357], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+        }).addTo(leafletMap);
+
+        leafletMap.on('click', async (e) => {
+          const { lat, lng } = e.latlng;
+          if (mapMarker) mapMarker.setLatLng(e.latlng);
+          else mapMarker = L.marker(e.latlng).addTo(leafletMap);
+
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=ar`);
+            const data = await res.json();
+            if (data && data.display_name) {
+              document.getElementById('f-address').value = data.display_name;
+              validateField(document.getElementById('f-address'));
+              showToast('✅ تم تحديد العنوان من الخريطة');
+              setTimeout(closeMapModal, 1500); // إغلاق تلقائي بعد ثانية ونصف
+            }
+          } catch(err) {
+            showToast('❌ فشل جلب العنوان', 'error');
+          }
+        });
+      } else {
+        // تحديث الحجم لو كان تم إنشاؤها مسبقاً
+        setTimeout(() => leafletMap.invalidateSize(), 200);
+      }
+    }
+
+    function closeMapModal() {
+      document.getElementById('map-modal').style.display = 'none';
+    }
+
+    // ─── GPS & Translation ────────────────────────────────────
+    // ─── قاموس محلي للأسماء الشائعة في جوازات السفر ─────────────────────────
+    const NAME_DICT = {
+      // أسماء ذكور شائعة
+      'ABDELFATTAH':'عبد الفتاح','ABDELRAHMAN':'عبد الرحمن','ABDULRAHMAN':'عبد الرحمن',
+      'ABDELAZIZ':'عبد العزيز','ABDULAZIZ':'عبد العزيز','ABDELHAMID':'عبد الحميد',
+      'ABDELKARIM':'عبد الكريم','ABDULKARIM':'عبد الكريم','ABDELMALIK':'عبد الملك',
+      'ABDELWAHAB':'عبد الوهاب','ABDELNASSER':'عبد الناصر','ABDELSALAM':'عبد السلام',
+      'ABDALLA':'عبد الله','ABDALLAH':'عبد الله','ABDUALLAH':'عبد الله','ABULLAH':'عبد الله',
+      'ABDULAH':'عبد الله','ABDULLAH':'عبد الله','AHMED':'أحمد','AHMAD':'أحمد',
+      'AHMED':'أحمد','MUHAMMED':'محمد','MUHAMMAD':'محمد','MOHAMMED':'محمد','MOHAMAD':'محمد',
+      'MOHAMED':'محمد','ALI':'علي','OMAR':'عمر','UMAR':'عمر','YOUSSEF':'يوسف',
+      'YUSUF':'يوسف','YOUSEF':'يوسف','IBRAHIM':'إبراهيم','ISMAIL':'إسماعيل',
+      'ISMAEL':'إسماعيل','MUSTAFA':'مصطفى','MOSTAFA':'مصطفى','HASSAN':'حسن',
+      'HUSSEIN':'حسين','HUSAIN':'حسين','HOSSEIN':'حسين','KHALED':'خالد','KHALID':'خالد',
+      'SAMIR':'سامر','SAMER':'سامر','TAREK':'طارق','TARIQ':'طارق','WALID':'وليد',
+      'WAEL':'وائل','HANY':'هاني','HANI':'هاني','SHERIF':'شريف','SHARIF':'شريف',
+      'KAREEM':'كريم','KARIM':'كريم','NASSER':'ناصر','NASER':'ناصر','OSAMA':'أسامة',
+      'USAMA':'أسامة','HAMID':'حامد','FATHY':'فتحي','FATHI':'فتحي','SALAH':'صلاح',
+      'SALEH':'صالح','SALIH':'صالح','ADEL':'عادل','AMGAD':'أمجد','AMJAD':'أمجد',
+      'ASHRAF':'أشرف','EHAB':'إيهاب','EMAD':'عماد','ESSAM':'عصام','AYMAN':'أيمن',
+      'HAZEM':'حازم','HAZIM':'حازم','HISHAM':'هشام','HESHAM':'هشام','MAHER':'ماهر',
+      'MAHMOUD':'محمود','MAHMOOD':'محمود','MAGDY':'مجدي','MAGDI':'مجدي','MAGED':'ماجد',
+      'MAJED':'ماجد','NABIL':'نبيل','RAAFAT':'رأفت','RAMADAN':'رمضان','RAMZY':'رامز',
+      'SAAD':'سعد','SAMY':'سامي','SAMI':'سامي','TAMER':'تامر','WISSAM':'وسام',
+      'YASSER':'ياسر','YASIR':'ياسر','ZIAD':'زياد','ZIYAD':'زياد',
+      // أسماء إناث شائعة
+      'FATIMA':'فاطمة','FATHIA':'فاطمة','AISHA':'عائشة','AYSHA':'عائشة',
+      'MARIAM':'مريم','MARYAM':'مريم','NOUR':'نور','NUR':'نور','SARAH':'سارة',
+      'SARA':'سارة','HANA':'هناء','HANAA':'هناء','DINA':'دينا','RANIA':'رانيا',
+      'RANA':'رنا','HEBA':'هبة','MONA':'منى','NADIA':'نادية','NADYA':'نادية',
+      'AMIRA':'أميرة','AMIR':'أمير','NOHA':'نها','EMAN':'إيمان','IMAN':'إيمان',
+      'REEM':'ريم','RIHAM':'ريهام','YASMINE':'ياسمين','SHAIMAA':'شيماء','SHAIMA':'شيماء',
+      'DOAA':'دعاء','DUA':'دعاء','GHADA':'غادة','ABEER':'عبير','ASMAA':'أسماء',
+      'ASMA':'أسماء','LOBNA':'لبنى','LUBNA':'لبنى','MANAR':'منار','MAYSA':'ميساء',
+      'NAGWA':'نجوى','NAGLAA':'نجلاء','NIHAL':'نهال','RADWA':'ردوى','SAMIA':'سامية',
+      'SUHA':'سها','WAFAA':'وفاء','WAFA':'وفاء',
+      // ألقاب / كنى شائعة
+      'ALBURHAN':'البرهان','AL-BURHAN':'البرهان','EL-BURHAN':'البرهان',
+      'ALAMIN':'الأمين','EL-AMIN':'الأمين','ELSAYED':'السيد','EL-SAYED':'السيد',
+      'ELSAID':'السعيد','EL-SAID':'السعيد','ELSHAFEI':'الشافعي','ELSHAMY':'الشامي',
+      'ELARABY':'العربي','ELARABIEH':'العربي',
+      // أسماء إضافية شائعة في الجوازات
+      'MANSOUR':'منصور','MANSOURA':'منصورة','MOHSEN':'محسن','MOHSENA':'محسنة',
+      'HAMZA':'حمزة','HAMZAH':'حمزة','HUDA':'هدى','HOUDA':'هدى','SULEIMAN':'سليمان',
+      'SULAIMAN':'سليمان','SOLIMAN':'سليمان','BADR':'بدر','BADRA':'بدرة',
+      'MARWA':'مروة','MARWAH':'مروة','MERYAM':'مريم','MERI':'مريم',
+      'HATEM':'حاتم','HATIM':'حاتم','ADNAN':'عدنان','AYMAN':'أيمن',
+      'BILAL':'بلال','BILEL':'بلال','FAISAL':'فيصل','FAYSAL':'فيصل',
+      'HAYTHAM':'هيثم','HAITHAM':'هيثم','HAZEM':'حازم','HAZIM':'حازم',
+      'KAMAL':'كمال','KEMAL':'كمال','LOTFI':'لطفي','LUTFI':'لطفي',
+      'MOUNIR':'منير','MUNIR':'منير','OUSSAMA':'أسامة','OSSAMA':'أسامة',
+      'RACHID':'رشيد','RASHID':'رشيد','REDA':'رضا','RIDHA':'رضا',
+      'RIDA':'رضا','SABRI':'صبري','SAMEH':'سامح','SAMER':'سامر',
+      'SOHAIR':'سهير','SOHEIR':'سهير','SUHAIR':'سهير','TAHIR':'طاهر',
+      'TAHER':'طاهر','WAHID':'وحيد','WAHEED':'وحيد','WAIL':'وائل',
+      'WISSAM':'وسام','YEHIA':'يحيى','YAHIA':'يحيى','YAHYA':'يحيى',
+      'ZINEB':'زينب','ZEINAB':'زينب','ZAYNAB':'زينب','ZAKI':'زكي',
+      'ZAKARIA':'زكريا','ZECHARIAH':'زكريا','LAYLA':'ليلى','LEILA':'ليلى',
+      'LINA':'لينا','LEENA':'لينا','LAILA':'ليلى','LOUBNA':'لبنى',
+      'MAHA':'مها','MAHER':'ماهر','MANAR':'منار','MAYADA':'ميادة',
+      'MONTASER':'منتصر','MUNTASIR':'منتصر','NADA':'ندى','NAHED':'ناهد',
+      'NAHLA':'نهلة','NAIMAH':'نعيمة','NIVIN':'نيفين','NIVEEN':'نيفين',
+      'NADA':'ندى','NADIA':'نادية',      'SIHAM':'سهام','SOHILA':'سهيلة',
+      'SUDANESE':'سوداني','SUDANI':'سوداني',
+      // أسماء إضافية من الجواز المصري (Case 2)
+      'RAAFAT':'رأفت','RAFAT':'رأفت','FATH':'فتح','HASSANIN':'حسانين','HASSANEIN':'حسانين',
+      'MOHAMED':'محمد','MOHAMMAD':'محمد','MOHAMAD':'محمد','MUHAMMAD':'محمد',
+    };
+
+    // ─── محرك Transliteration حرف بحرف (لأسماء الجوازات اللاتينية) ────────────
+    function transliterateChars(w) {
+      if (!w) return '';
+      const VOWELS = new Set(['A','E','I','O','U']);
+
+      // التحقق من نهايات خاصة أولاً
+      let suffix = '';
+      if (/AH$|EH$/i.test(w)) { suffix = 'ة'; w = w.slice(0,-2); }
+      else if (/[^AEIOU]A$/i.test(w) && w.length > 2) { suffix = 'ى'; w = w.slice(0,-1); }
+
+      // دمج الحروف المتكررة (HASSAN→HASAN, FATIMA→FATIMA)
+      w = w.replace(/([B-DF-HJ-NP-TV-Z])\1+/gi, '$1');
+
+      // خريطة ثنائية الحروف (مرتبة: الأطول أولاً)
+      const DI = [
+        ['SH','ش'],['KH','خ'],['GH','غ'],['DH','ذ'],['TH','ث'],
+        ['AA','ا'],['EE','ي'],['OO','و'],['OW','و'],
+        ['AW','ا'],['AY','اي'],['AI','اي'],
+      ];
+      // خريطة الحرف الواحد
+      const SI = {
+        A:'ا',B:'ب',C:'ك',D:'د',E:'',F:'ف',G:'ج',H:'ح',I:'ي',J:'ج',
+        K:'ك',L:'ل',M:'م',N:'ن',O:'و',P:'ب',Q:'ق',R:'ر',S:'س',T:'ت',
+        U:'و',V:'ف',W:'و',X:'كس',Y:'ي',Z:'ز',
+      };
+
+      let res = ''; let i = 0; const L = w.length;
+      // معالجة الحرف الأول: لو حرف علة → أ/إ
+      if (i < L && VOWELS.has(w[i].toUpperCase())) {
+        res += (['I','E'].includes(w[i].toUpperCase())) ? 'إ' : 'أ';
+        i++;
+      }
+
+      while (i < L) {
+        const ch = w[i].toUpperCase();
+        let found = false;
+        // جرب ثنائي الحروف
+        for (const [dg, ar] of DI) {
+          if (w.toUpperCase().startsWith(dg, i)) {
+            res += ar; i += dg.length; found = true; break;
+          }
+        }
+        if (!found) {
+          const isLast   = (i === L - 1);
+          const isVowel  = VOWELS.has(ch);
+          const prevCons = i > 0 && !VOWELS.has(w[i-1].toUpperCase());
+          const nextCons = (i+1 < L) && !VOWELS.has(w[i+1].toUpperCase());
+          if (isVowel) {
+            // E بين حرفين ساكنين غالباً صوت قصير في الجوازات العربية → احذفه
+            // بقية حروف العلة A/I/O/U → اكتبها دايماً
+            if (ch === 'E' && !isLast && prevCons && nextCons) { /* skip silent E */ }
+            else res += SI[ch] || '';
+          } else if (ch === 'H' && isLast) {
+            res += 'ه';   // H في نهاية الكلمة = ه
+          } else {
+            res += SI[ch] || '';
+          }
+          i++;
+        }
+      }
+      return res + suffix;
+    }
+
+    function translateWordLocally(word) {
+      let up = word.toUpperCase().replace(/[^A-Z]/g, '');
+      // تنظيف بقايا الـ OCR الشائعة الناتجة عن قراءة الرمز < بشكل خاطئ
+      up = up.replace(/^(EKK|KK|XX|K|X)$/g, '');
+      if (!up) return '';
+
+      // 1) القاموس أولاً
+      if (NAME_DICT[up]) return NAME_DICT[up];
+
+      // 2) تجريد البادئات الشائعة في أسماء الجوازات العربية
+      const PREFIXES = [
+        ['ABDEL','عبد ال'],['ABDUL','عبد ال'],['ABDU','عبد ال'],
+        ['ABD','عبد '],['ABU','أبو '],['IBN','ابن '],['BINT','بنت '],
+        ['UMM','أم '],['ELDEEN','الدين'],['ALDIN','الدين'],
+        ['EL','ال'],['AL','ال'],
+      ];
+      for (const [pfx, arPfx] of PREFIXES) {
+        if (up.startsWith(pfx) && up.length > pfx.length + 1) {
+          const rest = up.slice(pfx.length);
+          const restAr = NAME_DICT[rest] || transliterateChars(rest);
+          return arPfx + restAr;
+        }
+      }
+
+      // 3) Transliteration حرف بحرف
+      return transliterateChars(up);
+    }
+
+    async function translateNameToArabic(isAuto = false) {
+      const enName = document.getElementById('f-fullname').value.trim();
+      if (!enName) {
+        if (!isAuto) showToast('❗ يرجى استخراج بيانات الجواز أولاً', 'error');
+        return;
+      }
+
+      const link = isAuto ? null : (typeof event !== 'undefined' ? event.target : null);
+      if (link) { link.textContent = '...جاري الترجمة'; link.style.pointerEvents = 'none'; }
+
+      // ─── المحرك المحلي (فوري — قاموس + transliteration) ──────────────────
+      const words = enName.split(/\s+/);
+      const localParts = words.map(w => translateWordLocally(w)).filter(Boolean);
+      const arabicName = localParts.join(' ').replace(/\s+/g, ' ').trim();
+
+      if (arabicName) {
+        document.getElementById('f-name-arabic').value = arabicName;
+        validateField(document.getElementById('f-name-arabic'));
+        if (!isAuto) showToast('✅ تمت الترجمة');
+        if (link) { link.textContent = '✨ ترجمة من الإنجليزية؟'; link.style.pointerEvents = 'auto'; }
+        return;
+      }
+
+      // ─── Fallback: API خارجي (لو المحرك المحلي أرجع فاضي) ──────────────
+      try {
+        const controller = new AbortController();
+        const tout = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(enName)}&langpair=en|ar`,
+          { signal: controller.signal }
+        );
+        clearTimeout(tout);
+        const data = await res.json();
+        if (data && data.responseData && data.responseData.translatedText) {
+          const result = data.responseData.translatedText;
+          if (result && result !== enName && !/^[A-Za-z]/.test(result)) {
+            document.getElementById('f-name-arabic').value = result;
+            validateField(document.getElementById('f-name-arabic'));
+            if (!isAuto) showToast('✅ تمت الترجمة بنجاح');
+          } else if (!isAuto) {
+            showToast('⚠️ الترجمة غير واضحة — يرجى الإدخال يدوياً', 'error');
+          }
+        }
+      } catch (e) {
+        if (!isAuto) showToast('❌ فشلت الترجمة — يرجى الإدخال يدوياً', 'error');
+      } finally {
+        if (link) { link.textContent = '✨ ترجمة من الإنجليزية؟'; link.style.pointerEvents = 'auto'; }
+      }
+    }
+
+    function getGPSLocation(event) {
+      const link = event.target;
+      
+      // التحقق من البيئة الآمنة (Geolocation requires HTTPS or localhost)
+      if (!window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        showToast('⚠️ ميزة الموقع تتطلب اتصالاً آمناً (HTTPS) أو استخدام جهاز الكمبيوتر مباشرة', 'error');
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        showToast('❌ متصفحك لا يدعم تحديد الموقع', 'error');
+        return;
+      }
+
+      link.textContent = '...جاري جلب الموقع';
+      link.style.pointerEvents = 'none';
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar`);
+          const data = await res.json();
+          if (data && data.display_name) {
+            document.getElementById('f-address').value = data.display_name;
+            validateField(document.getElementById('f-address'));
+            showToast('✅ تم تحديد العنوان بنجاح');
+          }
+        } catch (e) {
+          showToast('❌ فشل جلب العنوان من الخريطة', 'error');
+        } finally {
+          link.textContent = '📍 موقعي';
+          link.style.pointerEvents = 'auto';
+        }
+      }, (err) => {
+        let errMsg = '❌ فشل تحديد الموقع';
+        if (err.code === 1) errMsg = '❌ يرجى السماح بالوصول للموقع من إعدادات المتصفح';
+        else if (err.code === 2) errMsg = '❌ موقعك غير متاح حالياً';
+        else if (err.code === 3) errMsg = '❌ استغرق طلب الموقع وقتاً طويلاً';
+        
+        showToast(errMsg, 'error');
+        link.textContent = '📍 موقعي';
+        link.style.pointerEvents = 'auto';
+      }, { timeout: 8000, enableHighAccuracy: false });
+    }
+
+    // ─── قائمة ISO احتياطية (تُستخدم لو Odoo غير متاح) ─────────────────────────
+    const ISO_FALLBACK_COUNTRIES = [
+      {id:'EG',name:'مصر',code:'EG'},{id:'SD',name:'السودان',code:'SD'},
+      {id:'SA',name:'المملكة العربية السعودية',code:'SA'},{id:'AE',name:'الإمارات العربية المتحدة',code:'AE'},
+      {id:'JO',name:'الأردن',code:'JO'},{id:'LB',name:'لبنان',code:'LB'},
+      {id:'SY',name:'سوريا',code:'SY'},{id:'IQ',name:'العراق',code:'IQ'},
+      {id:'YE',name:'اليمن',code:'YE'},{id:'LY',name:'ليبيا',code:'LY'},
+      {id:'TN',name:'تونس',code:'TN'},{id:'MA',name:'المغرب',code:'MA'},
+      {id:'DZ',name:'الجزائر',code:'DZ'},{id:'MR',name:'موريتانيا',code:'MR'},
+      {id:'SO',name:'الصومال',code:'SO'},{id:'KW',name:'الكويت',code:'KW'},
+      {id:'QA',name:'قطر',code:'QA'},{id:'BH',name:'البحرين',code:'BH'},
+      {id:'OM',name:'عُمان',code:'OM'},{id:'PS',name:'فلسطين',code:'PS'},
+      {id:'ER',name:'إريتريا',code:'ER'},{id:'ET',name:'إثيوبيا',code:'ET'},
+      {id:'NG',name:'نيجيريا',code:'NG'},{id:'GH',name:'غانا',code:'GH'},
+      {id:'CM',name:'الكاميرون',code:'CM'},{id:'SN',name:'السنغال',code:'SN'},
+      {id:'ML',name:'مالي',code:'ML'},{id:'NE',name:'النيجر',code:'NE'},
+      {id:'TD',name:'تشاد',code:'TD'},{id:'CF',name:'جمهورية أفريقيا الوسطى',code:'CF'},
+      {id:'CD',name:'الكونغو الديمقراطية',code:'CD'},{id:'KE',name:'كينيا',code:'KE'},
+      {id:'UG',name:'أوغندا',code:'UG'},{id:'TZ',name:'تنزانيا',code:'TZ'},
+      {id:'RW',name:'رواندا',code:'RW'},{id:'BI',name:'بوروندي',code:'BI'},
+      {id:'DJ',name:'جيبوتي',code:'DJ'},{id:'PK',name:'باكستان',code:'PK'},
+      {id:'IN',name:'الهند',code:'IN'},{id:'BD',name:'بنغلاديش',code:'BD'},
+      {id:'PH',name:'الفلبين',code:'PH'},{id:'ID',name:'إندونيسيا',code:'ID'},
+      {id:'MY',name:'ماليزيا',code:'MY'},{id:'TR',name:'تركيا',code:'TR'},
+      {id:'IR',name:'إيران',code:'IR'},{id:'AF',name:'أفغانستان',code:'AF'},
+      {id:'CN',name:'الصين',code:'CN'},{id:'US',name:'الولايات المتحدة',code:'US'},
+      {id:'GB',name:'المملكة المتحدة',code:'GB'},{id:'FR',name:'فرنسا',code:'FR'},
+      {id:'DE',name:'ألمانيا',code:'DE'},{id:'IT',name:'إيطاليا',code:'IT'},
+      {id:'RU',name:'روسيا',code:'RU'},{id:'NG',name:'نيجيريا',code:'NG'},
+      {id:'ZA',name:'جنوب أفريقيا',code:'ZA'},{id:'IL',name:'إسرائيل / وثيقة سفر',code:'IL'},
+      {id:'ISR',name:'إسرائيل (ISR)',code:'IL'},{id:'UA',name:'أوكرانيا',code:'UA'},
+    ];
+
+    function populateNationalityFallback() {
+      const sel = document.getElementById('f-nationality');
+      sel.innerHTML = '<option value="">— اختر الجنسية — (يدوي) —</option>';
+      ISO_FALLBACK_COUNTRIES
+        .sort((a,b) => a.name.localeCompare(b.name, 'ar'))
+        .forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          opt.setAttribute('data-code', c.code || '');
+          sel.appendChild(opt);
+        });
+      applyNationalityIfExtracted();
+    }
+    
+    function applyNationalityIfExtracted() {
+      if (typeof extractedData !== 'undefined' && extractedData && extractedData.nationality_code2) {
+        applyNationalityCode(
+          document.getElementById('f-nationality'),
+          extractedData.nationality_code2
+        );
+      }
+    }
+
+    async function fetchOdooData() {
+      const sel = document.getElementById('f-nationality');
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => { controller.abort(); }, 7000);
+
+        const res = await fetch('/api/odoo-data', { signal: controller.signal });
+        clearTimeout(timeout);
+
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const data = await res.json();
+
+        if (data.success && data.countries && data.countries.length > 0) {
+          sel.innerHTML = '<option value="">— اختر الجنسية —</option>';
+          data.countries
+            .sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ar'))
+            .forEach(c => {
+              const opt = document.createElement('option');
+              opt.value = c.id;
+              opt.textContent = c.name;
+              opt.setAttribute('data-code', c.code || '');
+              sel.appendChild(opt);
+            });
+          console.log('✅ تم تحميل الجنسيات من Odoo:', data.countries.length);
+          applyNationalityIfExtracted();
+        } else {
+          throw new Error('no countries in response');
+        }
+      } catch (err) {
+        // فشل الاتصال بـ Odoo — استخدام القائمة الاحتياطية
+        console.warn('Odoo غير متاح — جاري استخدام القائمة الاحتياطية:', err.message);
+        populateNationalityFallback();
+      }
+    }
+
+    window.onload = () => {
+      fetchOdooData();
+    };
+  </script>
+</body>
+
+</html>
