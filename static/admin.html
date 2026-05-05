@@ -69,8 +69,7 @@
     .main-logo {
       width: 120px;
       height: auto;
-      filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) 
-              drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
+      filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
       transition: all 0.3s ease;
     }
 
@@ -126,8 +125,14 @@
       background: #ef4444;
       color: #fff;
     }
-    .admin-btn.danger { background: var(--error); }
-    .admin-btn.danger:hover { background: #d32f2f; }
+
+    .admin-btn.danger {
+      background: var(--error);
+    }
+
+    .admin-btn.danger:hover {
+      background: #d32f2f;
+    }
 
     /* Student List / Rows */
     .student-list {
@@ -156,8 +161,18 @@
       background: rgba(0, 200, 255, 0.03);
     }
 
-    .row-name { font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .row-meta { font-size: 13px; color: var(--text-muted); }
+    .row-name {
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
 
     @media (max-width: 800px) {
       .student-row {
@@ -166,10 +181,12 @@
         padding: 20px;
         text-align: center;
       }
-      .student-row > div:last-child {
+
+      .student-row>div:last-child {
         justify-content: center !important;
         flex-wrap: wrap;
       }
+
       .admin-grid {
         grid-template-columns: 1fr 1fr;
       }
@@ -179,6 +196,7 @@
       .admin-grid {
         grid-template-columns: 1fr;
       }
+
       .container {
         padding: 20px 10px;
       }
@@ -200,9 +218,17 @@
     }
 
     @keyframes pulseRed {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     .status-synced {
@@ -228,10 +254,23 @@
       justify-content: center;
     }
 
-    .btn-call { background: var(--success); }
-    .btn-call.called { background: var(--error) !important; }
-    .btn-review { background: var(--success); opacity: 0.9; }
-    .btn-print { background: var(--success); opacity: 0.8; }
+    .btn-call {
+      background: var(--success);
+    }
+
+    .btn-call.called {
+      background: var(--error) !important;
+    }
+
+    .btn-review {
+      background: var(--success);
+      opacity: 0.9;
+    }
+
+    .btn-print {
+      background: var(--success);
+      opacity: 0.8;
+    }
 
     .refresh-btn {
       background: rgba(0, 200, 255, 0.1);
@@ -305,7 +344,9 @@
       gap: 20px;
     }
 
-    .full-width { grid-column: 1 / -1; }
+    .full-width {
+      grid-column: 1 / -1;
+    }
 
     .data-item {
       border-bottom: 1px dashed #cbd5e1;
@@ -346,11 +387,34 @@
     }
 
     @media print {
-      .no-print { display: none !important; }
-      .app-form { display: block !important; box-shadow: none !important; padding: 0 !important; border:none; outline:none; }
-      .app-inner-frame { border: 2px solid #000; }
-      .print-images { display: flex; gap: 20px; margin-top: 30px; }
-      .print-photo { width: 45%; max-height: 300px; object-fit: contain; border: 1px solid #000; }
+      .no-print {
+        display: none !important;
+      }
+
+      .app-form {
+        display: block !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        border: none;
+        outline: none;
+      }
+
+      .app-inner-frame {
+        border: 2px solid #000;
+      }
+
+      .print-images {
+        display: flex;
+        gap: 20px;
+        margin-top: 30px;
+      }
+
+      .print-photo {
+        width: 45%;
+        max-height: 300px;
+        object-fit: contain;
+        border: 1px solid #000;
+      }
     }
   </style>
 </head>
@@ -388,108 +452,188 @@
     </div>
 
     <!-- Dashboard Section -->
-    <div class="search-card no-print" id="dashboardSection">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>الطلاب المسجلون حديثاً</h2>
-        <button class="refresh-btn" onclick="loadNewStudents()">🔄 تحديث</button>
-      </div>
-      <div id="studentList" class="student-list">
-        <div style="padding: 40px; color: var(--text-muted)">جاري التحميل...</div>
-      </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2>الطلاب المسجلون حديثاً</h2>
+      <button class="refresh-btn" onclick="loadNewStudents()">🔄 تحديث</button>
     </div>
-
-    <!-- Search Section -->
-    <div class="search-card no-print" id="searchSection" style="display:none">
-      <button class="btn-back" onclick="loadNewStudents()">➡️ العودة للرئيسية</button>
-      <div style="display:flex; gap:10px; max-width:500px; margin: 0 auto">
-        <input type="text" id="searchInput" placeholder="أدخل رقم الجواز"
-          style="flex:1; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:#fff">
-        <button class="btn-row-action" onclick="searchStudent()">بحث</button>
-      </div>
-    </div>
-
-    <!-- Review Section -->
-    <div id="reviewView" style="display:none">
-      <button class="btn-back no-print" onclick="loadNewStudents()">➡️ العودة للقائمة</button>
-      <div class="search-card">
-        <h2 style="margin-bottom:20px">📝 مراجعة بيانات الطالب</h2>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px">
-          <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الاسم الكامل (Passport)</label><input type="text" id="r-fullname" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px; direction:ltr"></div>
-          <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">رقم الجواز</label><input type="text" id="r-passport" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></div>
-          <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الجنسية</label><input type="text" id="r-nationality" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></div>
-          <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">تاريخ الميلاد</label><input type="date" id="r-dob" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></div>
-          <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">انتهاء الجواز</label><input type="date" id="r-expiry" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></div>
-                    <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">رقم التليفون</label><input type="tel" id="r-phone" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></div>
-          <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الفرع (Branch)</label><select id="r-branch" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></select></div>
-          <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">المعاملة المالية (Category)</label><select id="r-category" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></select></div>
-          <div style="grid-column: 1 / -1"><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الاسم العربي</label><input type="text" id="r-name-arabic" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></div>
-          <div style="grid-column: 1 / -1"><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">العنوان</label><textarea id="r-address" class="edit-input" style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px; min-height:60px"></textarea></div>
-        </div>
-        <div style="display:flex; gap:20px; margin-top:30px">
-          <div style="flex:1"><label>صورة الجواز</label><img id="r-passport-img" style="width:100%; max-height:200px; object-fit:contain; background:var(--surface2); border-radius:8px"></div>
-          <div style="flex:1"><label>صورة الإقامة</label><img id="r-id-img" style="width:100%; max-height:200px; object-fit:contain; background:var(--surface2); border-radius:8px"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Detail View (The Form) -->
-    <div id="detailView" style="display:none">
-      <button class="btn-back no-print" onclick="loadNewStudents()">➡️ العودة للقائمة</button>
-      <div class="app-form" id="appForm">
-        <!-- Page 1: Main Data & Signature -->
-        <div class="app-inner-frame">
-          <div class="certified-badge">
-            تسجيل معتمد
-          </div>
-
-          <div class="app-header">
-            <div><h2>استمارة طلب التحاق - مركز فجر</h2><div id="d-date" style="font-size:14px; color:#64748b"></div></div>
-            <div class="meta-code" id="d-code">STU-0000</div>
-          </div>
-          <div class="data-section">
-            <div class="data-item full-width"><div class="data-label">الاسم بالكامل (Passport Name)</div><input type="text" id="e-fullname" class="edit-input" style="direction:ltr"></div>
-            <div class="data-item"><div class="data-label">رقم الجواز</div><input type="text" id="e-passport" class="edit-input"></div>
-            <div class="data-item"><div class="data-label">الجنسية</div><input type="text" id="e-nat" class="edit-input"></div>
-            <div class="data-item"><div class="data-label">تاريخ الميلاد</div><input type="date" id="e-dob" class="edit-input"></div>
-            <div class="data-item"><div class="data-label">انتهاء الجواز</div><input type="date" id="e-exp" class="edit-input"></div>
-            <div class="data-item"><div class="data-label">رقم التليفون</div><input type="text" id="e-phone" class="edit-input"></div>
-            <div class="data-item"><div class="data-label">الاسم بالعربي</div><input type="text" id="e-name-arabic" class="edit-input" style="color:#000; font-weight:900"></div>
-            <div class="data-item full-width"><div class="data-label">العنوان بمصر</div><input type="text" id="e-address" class="edit-input"></div>
-          </div>
-          
-          <!-- Signature Section (Bottom of Page 1) -->
-          <div style="margin-top: 50px; display: flex; justify-content: space-between; padding: 0 40px">
-            <div style="text-align: center;"><div style="font-weight: bold; margin-bottom: 20px">توقيع الطالب</div><div style="width: 180px; border-bottom: 2px solid #000"></div></div>
-            <div style="text-align: center;"><div style="font-weight: bold; margin-bottom: 20px">ختم واعتماد المركز</div><div style="width: 120px; height: 120px; border: 2px dashed #000; display: flex; align-items: center; justify-content: center; font-size: 12px">الختم</div></div>
-          </div>
-        </div>
-
-        <!-- Page Break -->
-        <div style="page-break-before: always; height: 1px;"></div>
-
-        <div class="app-inner-frame" style="margin-top: 10px; min-height: auto;">
-          <h3 style="text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px; margin-bottom: 20px;">المرفقات (Attachments)</h3>
-          <div class="print-images" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%;">
-            <div style="text-align: center;">
-                <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">صورة الجواز</p>
-                <img id="img-passport" src="" style="width: 100%; height: 350px; object-fit: contain; border: 1px solid #000; background: #f8fafc;">
-            </div>
-            <div style="text-align: center;">
-                <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">صورة الإقامة</p>
-                <img id="img-id" src="" style="width: 100%; height: 350px; object-fit: contain; border: 1px solid #000; background: #f8fafc;">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="syncReport" style="text-align:center; padding:20px; color:#10b981; font-weight:700; display:none"></div>
+    <div id="studentList" class="student-list">
+      <div style="padding: 40px; color: var(--text-muted)">جاري التحميل...</div>
     </div>
   </div>
 
+  <!-- Search Section -->
+  <div class="search-card no-print" id="searchSection" style="display:none">
+    <button class="btn-back" onclick="loadNewStudents()">➡️ العودة للرئيسية</button>
+    <div style="display:flex; gap:10px; max-width:500px; margin: 0 auto">
+      <input type="text" id="searchInput" placeholder="أدخل رقم الجواز"
+        style="flex:1; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:#fff">
+      <button class="btn-row-action" onclick="searchStudent()">بحث</button>
+    </div>
+  </div>
+
+  <!-- Review Section -->
+  <div id="reviewView" style="display:none">
+    <button class="btn-back no-print" onclick="loadNewStudents()">➡️ العودة للقائمة</button>
+    <div class="search-card">
+      <h2 style="margin-bottom:20px">📝 مراجعة بيانات الطالب</h2>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px">
+        <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الاسم الكامل
+            (Passport)</label><input type="text" id="r-fullname" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px; direction:ltr">
+        </div>
+        <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">رقم
+            الجواز</label><input type="text" id="r-passport" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px">
+        </div>
+        <div><label
+            style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الجنسية</label><input
+            type="text" id="r-nationality" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px">
+        </div>
+        <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">تاريخ
+            الميلاد</label><input type="date" id="r-dob" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px">
+        </div>
+        <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">انتهاء
+            الجواز</label><input type="date" id="r-expiry" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px">
+        </div>
+        <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">رقم
+            التليفون</label><input type="tel" id="r-phone" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px">
+        </div>
+        <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الفرع
+            (Branch)</label><select id="r-branch" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></select>
+        </div>
+        <div><label style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">المعاملة المالية
+            (Category)</label><select id="r-category" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px"></select>
+        </div>
+        <div style="grid-column: 1 / -1"><label
+            style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">الاسم العربي</label><input
+            type="text" id="r-name-arabic" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px">
+        </div>
+        <div style="grid-column: 1 / -1"><label
+            style="display:block; margin-bottom:5px; color:var(--text-muted); font-size:12px">العنوان</label><textarea
+            id="r-address" class="edit-input"
+            style="background:var(--surface2); color:#fff; border:1px solid var(--border); width:100%; border-radius:8px; padding:10px; min-height:60px"></textarea>
+        </div>
+      </div>
+      <div style="display:flex; gap:20px; margin-top:30px">
+        <div style="flex:1"><label>صورة الجواز</label><img id="r-passport-img"
+            style="width:100%; max-height:200px; object-fit:contain; background:var(--surface2); border-radius:8px">
+        </div>
+        <div style="flex:1"><label>صورة الإقامة</label><img id="r-id-img"
+            style="width:100%; max-height:200px; object-fit:contain; background:var(--surface2); border-radius:8px">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail View (The Form) -->
+  <div id="detailView" style="display:none">
+    <button class="btn-back no-print" onclick="loadNewStudents()">➡️ العودة للقائمة</button>
+    <div class="app-form" id="appForm">
+      <!-- Page 1: Main Data & Signature -->
+      <div class="app-inner-frame">
+        <div class="certified-badge">
+          تسجيل معتمد
+        </div>
+
+        <div class="app-header">
+          <div>
+            <h2>استمارة طلب التحاق - مركز فجر</h2>
+            <div id="d-date" style="font-size:14px; color:#64748b"></div>
+          </div>
+          <div class="meta-code" id="d-code">STU-0000</div>
+        </div>
+        <div class="data-section">
+          <div class="data-item full-width">
+            <div class="data-label">الاسم بالكامل (Passport Name)</div><input type="text" id="e-fullname"
+              class="edit-input" style="direction:ltr">
+          </div>
+          <div class="data-item">
+            <div class="data-label">رقم الجواز</div><input type="text" id="e-passport" class="edit-input">
+          </div>
+          <div class="data-item">
+            <div class="data-label">الجنسية</div><input type="text" id="e-nat" class="edit-input">
+          </div>
+          <div class="data-item">
+            <div class="data-label">تاريخ الميلاد</div><input type="date" id="e-dob" class="edit-input">
+          </div>
+          <div class="data-item">
+            <div class="data-label">انتهاء الجواز</div><input type="date" id="e-exp" class="edit-input">
+          </div>
+          <div class="data-item">
+            <div class="data-label">رقم التليفون</div><input type="text" id="e-phone" class="edit-input">
+          </div>
+          <div class="data-item">
+            <div class="data-label">الاسم بالعربي</div><input type="text" id="e-name-arabic" class="edit-input"
+              style="color:#000; font-weight:900">
+          </div>
+          <div class="data-item full-width">
+            <div class="data-label">العنوان بمصر</div><input type="text" id="e-address" class="edit-input">
+          </div>
+        </div>
+
+        <!-- Signature Section (Bottom of Page 1) -->
+        <div style="margin-top: 50px; display: flex; justify-content: space-between; padding: 0 40px">
+          <div style="text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 20px">توقيع الطالب</div>
+            <div style="width: 180px; border-bottom: 2px solid #000"></div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 20px">ختم واعتماد المركز</div>
+            <div
+              style="width: 120px; height: 120px; border: 2px dashed #000; display: flex; align-items: center; justify-content: center; font-size: 12px">
+              الختم</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Break -->
+      <div style="page-break-before: always; height: 1px;"></div>
+
+      <div class="app-inner-frame" style="margin-top: 10px; min-height: auto;">
+        <h3 style="text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+          المرفقات (Attachments)</h3>
+        <div class="print-images" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%;">
+          <div style="text-align: center;">
+            <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">صورة الجواز</p>
+            <img id="img-passport" src=""
+              style="width: 100%; height: 350px; object-fit: contain; border: 1px solid #000; background: #f8fafc;">
+          </div>
+          <div style="text-align: center;">
+            <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">صورة الإقامة</p>
+            <img id="img-id" src=""
+              style="width: 100%; height: 350px; object-fit: contain; border: 1px solid #000; background: #f8fafc;">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="syncReport" style="text-align:center; padding:20px; color:#10b981; font-weight:700; display:none"></div>
+  </div>
+  </div>
+
   <!-- Toast Notification -->
-  <div id="toast" style="position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:12px; color:#fff; font-weight:700; z-index:9999; display:none; animation: slideIn 0.3s forwards;"></div>
+  <div id="toast"
+    style="position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:12px; color:#fff; font-weight:700; z-index:9999; display:none; animation: slideIn 0.3s forwards;">
+  </div>
 
   <style>
-    @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
   </style>
 
   <script>
@@ -528,7 +672,7 @@
         <div class="student-row">
           <div class="row-name">${s['الإسم بالعربي'] || s['الأسماء'] || 'بدون اسم'}</div>
           <div class="row-meta">${s['رقم الجواز']}</div>
-          <div><div class="status-badge ${isSynced ? 'status-synced' : 'status-not-synced'}">${isSynced ? 'تم الربط ('+s.odoo_student_code+')' : 'طالب جديد'}</div></div>
+          <div><div class="status-badge ${isSynced ? 'status-synced' : 'status-not-synced'}">${isSynced ? 'تم الربط (' + s.odoo_student_code + ')' : 'طالب جديد'}</div></div>
           <div style="display:flex; gap:8px; justify-content: flex-end;">
             <button id="callBtn-${p}" class="btn-row-action btn-call" 
                     style="background:var(--success); width:90px; height:36px; color:#fff; border-radius:8px; border:none; font-weight:700; cursor:pointer;"
@@ -553,7 +697,7 @@
       document.getElementById('reviewView').style.display = 'block';
       document.getElementById('dashboardSection').style.display = 'block';
       clearForms();
-      
+
       // جلب بيانات أودو (الفروع والأقسام) أولاً
       await loadOdooConstants();
 
@@ -575,7 +719,7 @@
         if (data.success) {
           const branchSel = document.getElementById('r-branch');
           const catSel = document.getElementById('r-category');
-          
+
           branchSel.innerHTML = data.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
           catSel.innerHTML = data.categories.map(c => `<option value="${c.id}">${c.name} (${c.code || ''})</option>`).join('');
         }
@@ -584,7 +728,7 @@
 
     function clearForms() {
       const ids = ['r-fullname', 'r-passport', 'r-nationality', 'r-dob', 'r-expiry', 'r-phone', 'r-name-arabic', 'r-address', 'e-fullname', 'e-passport', 'e-nat', 'e-dob', 'e-exp', 'e-phone', 'e-name-arabic', 'e-address'];
-      ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
+      ids.forEach(id => { if (document.getElementById(id)) document.getElementById(id).value = ''; });
       document.getElementById('r-passport-img').src = ''; document.getElementById('r-id-img').src = '';
       document.getElementById('img-passport').src = ''; document.getElementById('img-id').src = '';
     }
@@ -592,16 +736,16 @@
     function fillForm(s) {
       const name = (s['الأسماء'] || '') + ' ' + (s['اللقب'] || '');
       const fmt = (d) => {
-        if(!d) return '';
-        if(d.includes('/') || (d.includes('-') && d.split('-')[0].length < 4)) {
+        if (!d) return '';
+        if (d.includes('/') || (d.includes('-') && d.split('-')[0].length < 4)) {
           const p = d.includes('/') ? d.split('/') : d.split('-');
-          if(p.length === 3) return `${p[2].length===2?(parseInt(p[2])>40?'19':'20')+p[2]:p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+          if (p.length === 3) return `${p[2].length === 2 ? (parseInt(p[2]) > 40 ? '19' : '20') + p[2] : p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
         }
         return d;
       };
       const dob = fmt(s['تاريخ الميلاد']);
       const exp = fmt(s['تاريخ انتهاء الجواز']);
-      
+
       document.getElementById('r-fullname').value = name;
       document.getElementById('r-passport').value = s['رقم الجواز'] || '';
       document.getElementById('r-nationality').value = s['الجنسية'] || '';
@@ -610,8 +754,8 @@
       document.getElementById('r-phone').value = s['رقم التليفون'] || '';
       document.getElementById('r-name-arabic').value = s['الإسم بالعربي'] || '';
       document.getElementById('r-address').value = s['العنوان'] || '';
-      document.getElementById('r-passport-img').src = s['صورة الجواز'] ? '/uploads/'+s['صورة الجواز'] : '';
-      document.getElementById('r-id-img').src = s['صورة الإقامة'] ? '/uploads/'+s['صورة الإقامة'] : '';
+      document.getElementById('r-passport-img').src = s['صورة الجواز'] ? '/uploads/' + s['صورة الجواز'] : '';
+      document.getElementById('r-id-img').src = s['صورة الإقامة'] ? '/uploads/' + s['صورة الإقامة'] : '';
 
       document.getElementById('e-fullname').value = name;
       document.getElementById('e-passport').value = s['رقم الجواز'] || '';
@@ -621,8 +765,8 @@
       document.getElementById('e-phone').value = s['رقم التليفون'] || '';
       document.getElementById('e-name-arabic').value = s['الإسم بالعربي'] || '';
       document.getElementById('e-address').value = s['العنوان'] || '';
-      document.getElementById('img-passport').src = s['صورة الجواز'] ? '/uploads/'+s['صورة الجواز'] : '';
-      document.getElementById('img-id').src = s['صورة الإقامة'] ? '/uploads/'+s['صورة الإقامة'] : '';
+      document.getElementById('img-passport').src = s['صورة الجواز'] ? '/uploads/' + s['صورة الجواز'] : '';
+      document.getElementById('img-id').src = s['صورة الإقامة'] ? '/uploads/' + s['صورة الإقامة'] : '';
       document.getElementById('d-date').textContent = 'تاريخ التسجيل: ' + (s['تاريخ التسجيل'] || '');
       document.getElementById('d-code').textContent = (s.odoo_student_code && s.odoo_student_code !== true) ? s.odoo_student_code : 'STU-NEW';
     }
@@ -655,7 +799,7 @@
         fd.append('updated_address', document.getElementById('r-address').value);
         fd.append('branch_id', document.getElementById('r-branch').value);
         fd.append('category_id', document.getElementById('r-category').value);
-        
+
         // Update print fields
         document.getElementById('e-fullname').value = document.getElementById('r-fullname').value;
         document.getElementById('e-passport').value = document.getElementById('r-passport').value;
@@ -673,20 +817,20 @@
           document.getElementById('d-code').textContent = data.odoo_student_code;
           hideAll();
           document.getElementById('detailView').style.display = 'block';
-          setTimeout(() => { window.print(); if(btn){btn.disabled=false; btn.innerHTML='طباعة';} loadNewStudents(); }, 500);
-        } else { alert('⚠️ ' + data.error); if(btn){btn.disabled=false; btn.innerHTML='طباعة';} }
-      } catch (e) { alert('❌ خطأ'); if(btn){btn.disabled=false; btn.innerHTML='طباعة';} }
+          setTimeout(() => { window.print(); if (btn) { btn.disabled = false; btn.innerHTML = 'طباعة'; } loadNewStudents(); }, 500);
+        } else { alert('⚠️ ' + data.error); if (btn) { btn.disabled = false; btn.innerHTML = 'طباعة'; } }
+      } catch (e) { alert('❌ خطأ'); if (btn) { btn.disabled = false; btn.innerHTML = 'طباعة'; } }
     }
 
     function hideAll() {
       ['dashboardSection', 'searchSection', 'detailView', 'reviewView'].forEach(id => document.getElementById(id).style.display = 'none');
     }
     function showSearchSection() { hideAll(); document.getElementById('searchSection').style.display = 'block'; }
-    function searchStudent() { const c = document.getElementById('searchInput').value; if(c) viewStudent(c); }
-    function logout() { if(confirm('خروج؟')) window.location.href='/admin-logout'; }
+    function searchStudent() { const c = document.getElementById('searchInput').value; if (c) viewStudent(c); }
+    function logout() { if (confirm('خروج؟')) window.location.href = '/admin-logout'; }
     async function printRegistrationGuide() {
       const h = `<html><body onload="window.print()"><div style="border:10px solid #00c8ff;padding:40px;text-align:center;"><h1>مركز فجر</h1><img src="/api/qrcode" style="width:300px;"></div></body></html>`;
-      const i = document.createElement('iframe'); i.style.display='none'; document.body.appendChild(i);
+      const i = document.createElement('iframe'); i.style.display = 'none'; document.body.appendChild(i);
       i.contentWindow.document.write(h); i.contentWindow.document.close();
     }
     async function callStudent(passport) {
@@ -699,15 +843,15 @@
         });
         const data = await res.json();
         if (data.success) {
-            if (btn) {
-                btn.classList.add('called');
-                btn.style.backgroundColor = '#ef4444'; // Red color
-            }
-            showToast('✅ تم إرسال نداء للطالب', 'success');
+          if (btn) {
+            btn.classList.add('called');
+            btn.style.backgroundColor = '#ef4444'; // Red color
+          }
+          showToast('✅ تم إرسال نداء للطالب', 'success');
         } else { alert('❌ ' + data.error); }
-      } catch (e) { 
-          console.error("Call Error:", e);
-          alert('❌ خطأ في الاتصال: ' + e.message); 
+      } catch (e) {
+        console.error("Call Error:", e);
+        alert('❌ خطأ في الاتصال: ' + e.message);
       }
     }
     async function resetWaitingList() {
@@ -721,4 +865,5 @@
     }
   </script>
 </body>
+
 </html>

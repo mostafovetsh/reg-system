@@ -1,7 +1,7 @@
 """
 مركز فجر — نظام تسجيل الطلاب
 Fajr Center — Student Registration System
-v4.5 — Optimized Hybrid Engine (3x Upscale)
+v5.0 — SQLite Database Edition
 """
 
 import os
@@ -14,8 +14,10 @@ import base64
 import logging
 import ssl
 import re
+import sqlite3
 import xmlrpc.client
 from datetime import datetime, date
+from contextlib import contextmanager
 from functools import wraps
 from flask import Flask, request, jsonify, send_from_directory, Response, session, redirect
 import qrcode
@@ -47,8 +49,9 @@ MAINTENANCE_MODE = False
 
 # ─── مسارات الملفات ───────────────────────────────────────────────────────────
 UPLOAD_FOLDER     = 'uploads'
-JSON_FILE         = 'students_data.json'
-WAITING_LIST_FILE = 'waiting_list.json'
+DATABASE          = 'fajr_students.db'
+JSON_FILE         = 'students_data.json'  # للتوافق مع القديم
+WAITING_LIST_FILE = 'waiting_list.json'   # للتوافق مع القديم
 ALLOWED_EXTENSIONS = {
     'jpg', 'jpeg', 'png', 'webp', 'jfif', 'avif', 'bmp', 'tiff', 'pjpeg', 'pjp',
     'gif', 'heic', 'heif',
@@ -131,58 +134,119 @@ ISO_MAPPING = {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
+# SQLite Database Setup
+# ══════════════════════════════════════════════════════════════════════════════
+
+@contextmanager
+def get_db():
+    """فتح وإغلاق آمن لقاعدة البيانات"""
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys=ON")
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def init_db():
+    """إنشاء الجداول لو مش موجودة"""
+    with get_db() as conn:
+        conn.executescript("""
+            CREATE TABLE IF NOT EXISTS students (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                passport_number TEXT UNIQUE NOT NULL,
+                surname TEXT DEFAULT '',
+                given_names TEXT DEFAULT '',
+                nationality TEXT DEFAULT '',
+                birth_date TEXT DEFAULT '',
+                expiry_date TEXT DEFAULT '',
+                phone TEXT DEFAULT '',
+                whatsapp TEXT DEFAULT '',
+                email TEXT DEFAULT '',
+                name_arabic TEXT DEFAULT '',
+                address TEXT DEFAULT '',
+                gender TEXT DEFAULT '',
+                photo_passport TEXT DEFAULT '',
+                photo_id TEXT DEFAULT '',
+                queue_number TEXT DEFAULT '',
+                odoo_student_code TEXT DEFAULT '',
+                branch_id INTEGER DEFAULT NULL,
+                category_id INTEGER DEFAULT NULL,
+                synced INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now', 'localtime')),
+                updated_at TEXT DEFAULT (datetime('now', 'localtime'))
+            );
+            
+            CREATE TABLE IF NOT EXISTS waiting_list (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER,
+                queue_number TEXT UNIQUE NOT NULL,
+                name TEXT NOT NULL,
+                called INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now', 'localtime')),
+                FOREIGN KEY (student_id) REFERENCES students(id)
+            );
+            
+            CREATE TABLE IF NOT EXISTS call_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER,
+                queue_number TEXT,
+                called_at TEXT DEFAULT (datetime('now', 'localtime')),
+                FOREIGN KEY (student_id) REFERENCES students(id)
+            );
+            
+            CREATE INDEX IF NOT EXISTS idx_passport ON students(passport_number);
+            CREATE INDEX IF NOT EXISTS idx_queue ON students(queue_number);
+            CREATE INDEX IF NOT EXISTS idx_synced ON students(synced);
+            CREATE INDEX IF NOT EXISTS idx_waiting_queue ON waiting_list(queue_number);
+        """)
+    log.info("✅ Database initialized successfully")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # Helper Functions
 # ══════════════════════════════════════════════════════════════════════════════
 
 def _normalize_upload_ext(raw: str) -> str:
-    if not raw:
-        return ''
+    if not raw: return ''
     e = raw.lower().strip()
-    for ch in '\r\n\t\v\x00':
-        e = e.replace(ch, '')
+    for ch in '\r\n\t\v\x00': e = e.replace(ch, '')
     e = e.split('?', 1)[0].split('#', 1)[0].strip('.')
     return e
 
 
 def _normalize_mimetype(m: str) -> str:
-    if not m:
-        return ''
+    if not m: return ''
     return m.split(';')[0].strip().lower()
 
 
 def _sniff_image_extension(stream) -> str | None:
     pos = 0
     try:
-        if hasattr(stream, 'tell'):
-            pos = stream.tell()
+        if hasattr(stream, 'tell'): pos = stream.tell()
         head = stream.read(32)
     except Exception:
         return None
     finally:
-        try:
-            stream.seek(pos)
-        except Exception:
-            pass
-    if len(head) < 4:
-        return None
-    if head.startswith(b'\xff\xd8\xff'):
-        return 'jpg'
-    if head.startswith(b'\x89PNG\r\n\x1a\n'):
-        return 'png'
-    if head.startswith(b'GIF87a') or head.startswith(b'GIF89a'):
-        return 'gif'
-    if len(head) >= 12 and head.startswith(b'RIFF') and head[8:12] == b'WEBP':
-        return 'webp'
-    if head.startswith(b'BM'):
-        return 'bmp'
-    if head.startswith(b'II*\x00') or head.startswith(b'MM\x00*'):
-        return 'tiff'
+        try: stream.seek(pos)
+        except Exception: pass
+    if len(head) < 4: return None
+    if head.startswith(b'\xff\xd8\xff'): return 'jpg'
+    if head.startswith(b'\x89PNG\r\n\x1a\n'): return 'png'
+    if head.startswith(b'GIF87a') or head.startswith(b'GIF89a'): return 'gif'
+    if len(head) >= 12 and head.startswith(b'RIFF') and head[8:12] == b'WEBP': return 'webp'
+    if head.startswith(b'BM'): return 'bmp'
+    if head.startswith(b'II*\x00') or head.startswith(b'MM\x00*'): return 'tiff'
     if len(head) >= 12 and head[4:8] == b'ftyp':
         brand = head[8:12]
-        if brand in (b'heic', b'heix', b'heim', b'heis', b'mif1', b'msf1'):
-            return 'heic'
-        if brand == b'avif':
-            return 'avif'
+        if brand in (b'heic', b'heix', b'heim', b'heis', b'mif1', b'msf1'): return 'heic'
+        if brand == b'avif': return 'avif'
     return None
 
 
@@ -191,25 +255,19 @@ def get_image_extension_for_upload(file) -> str | None:
     if name and '.' in name:
         ext = _normalize_upload_ext(name.rsplit('.', 1)[1])
         ext = _EXT_CANONICAL.get(ext, ext)
-        if ext in ALLOWED_EXTENSIONS:
-            return ext
-    mime = _normalize_mimetype(
-        getattr(file, 'mimetype', None) or getattr(file, 'content_type', None) or ''
-    )
+        if ext in ALLOWED_EXTENSIONS: return ext
+    mime = _normalize_mimetype(getattr(file, 'mimetype', None) or getattr(file, 'content_type', None) or '')
     ext = _MIME_TO_EXT.get(mime)
     if ext:
         ext = _EXT_CANONICAL.get(ext, ext)
-        if ext in ALLOWED_EXTENSIONS:
-            return ext
+        if ext in ALLOWED_EXTENSIONS: return ext
     try:
         stream = getattr(file, 'stream', None) or file
         sniff = _sniff_image_extension(stream)
         if sniff:
             sniff = _EXT_CANONICAL.get(sniff, sniff)
-            if sniff in ALLOWED_EXTENSIONS:
-                return sniff
-    except Exception:
-        pass
+            if sniff in ALLOWED_EXTENSIONS: return sniff
+    except Exception: pass
     return None
 
 
@@ -220,17 +278,14 @@ def get_local_ip() -> str:
         ip = s.getsockname()[0]
         s.close()
         return ip
-    except Exception:
-        return "127.0.0.1"
+    except Exception: return "127.0.0.1"
 
 
 def parse_date_safe(raw: str) -> str | None:
-    if not raw:
-        return None
+    if not raw: return None
     raw = str(raw).strip()
     parts = re.findall(r'\d+', raw)
-    if not parts:
-        return None
+    if not parts: return None
     try:
         if len(parts) == 1 and len(parts[0]) == 6:
             s = parts[0]
@@ -238,16 +293,12 @@ def parse_date_safe(raw: str) -> str | None:
             yyyy = 2000 + yy if yy < 40 else 1900 + yy
         elif len(parts) >= 3:
             p0, p1, p2 = parts[0], parts[1], parts[2]
-            if len(p0) == 4:
-                yyyy, mm, dd = int(p0), int(p1), int(p2)
+            if len(p0) == 4: yyyy, mm, dd = int(p0), int(p1), int(p2)
             else:
                 dd, mm, yyyy = int(p0), int(p1), int(p2)
-                if mm > 12 and dd <= 12:
-                    dd, mm = mm, dd
-                if yyyy < 100:
-                    yyyy = 2000 + yyyy if yyyy < 40 else 1900 + yyyy
-        else:
-            return None
+                if mm > 12 and dd <= 12: dd, mm = mm, dd
+                if yyyy < 100: yyyy = 2000 + yyyy if yyyy < 40 else 1900 + yyyy
+        else: return None
         valid = date(yyyy, mm, dd)
         return valid.strftime("%Y-%m-%d")
     except (ValueError, OverflowError) as e:
@@ -255,74 +306,10 @@ def parse_date_safe(raw: str) -> str | None:
         return None
 
 
-def read_json(path: str, default=None):
-    if not os.path.exists(path):
-        return default if default is not None else []
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError) as e:
-        log.error(f"Failed to read {path}: {e}")
-        return default if default is not None else []
-
-
-def write_json(path: str, data) -> bool:
-    tmp = path + '.tmp'
-    try:
-        with open(tmp, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        os.replace(tmp, path)
-        return True
-    except OSError as e:
-        log.error(f"Failed to write {path}: {e}")
-        return False
-
-
-STUDENT_FIELD_MAP = {
-    'updated_passport': 'رقم الجواز',
-    'updated_nat':      'الجنسية',
-    'updated_dob':      'تاريخ الميلاد',
-    'updated_exp':      'تاريخ انتهاء الجواز',
-    'updated_phone':    'رقم التليفون',
-    'updated_arabic':   'الإسم بالعربي',
-    'updated_address':  'العنوان',
-}
-
-
-def apply_field_updates(student: dict, source) -> dict:
-    for key, ar_key in STUDENT_FIELD_MAP.items():
-        val = source.get(key)
-        if val:
-            student[ar_key] = val
-    full_name = (source.get('updated_name') or '').strip()
-    if full_name:
-        parts = full_name.split()
-        student['اللقب']  = parts[-1] if len(parts) > 1 else ''
-        student['الأسماء'] = ' '.join(parts[:-1]) if len(parts) > 1 else full_name
-    return student
-
-
-def find_student_by_passport(passport_no: str) -> tuple:
-    students = read_json(JSON_FILE, [])
-    code = passport_no.strip().upper()
-    idx = next(
-        (i for i, s in enumerate(students)
-         if str(s.get('رقم الجواز', '')).upper() == code),
-        -1
-    )
-    return students, idx
-
-
-def _resolve_date(student_data: dict, ar_key: str, vals_key: str, vals: dict) -> tuple:
-    raw = student_data.get(ar_key, '')
-    if not raw:
-        return True, None
-    parsed = parse_date_safe(raw)
-    if parsed:
-        vals[vals_key] = parsed
-        return True, None
-    log.warning(f"{ar_key} غير صحيح: {raw}")
-    return False, f"⚠️ {ar_key} غير صحيح ({raw})"
+def dict_from_row(row):
+    """تحويل sqlite3.Row إلى dict"""
+    if row is None: return None
+    return dict(row)
 
 
 def admin_required(f):
@@ -335,6 +322,207 @@ def admin_required(f):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# SQLite CRUD Operations
+# ══════════════════════════════════════════════════════════════════════════════
+
+def add_student_db(data: dict) -> dict:
+    """إضافة طالب جديد إلى SQLite"""
+    p_num = str(data.get('passport_number') or '').strip().upper()
+    if not p_num:
+        return {"success": False, "error": "رقم الجواز مطلوب"}
+    
+    try:
+        with get_db() as conn:
+            # منع التكرار
+            existing = conn.execute(
+                "SELECT id FROM students WHERE passport_number = ?", (p_num,)
+            ).fetchone()
+            if existing:
+                return {"success": False, "error": "هذا الطالب مسجل سابقاً"}
+            
+            queue_num = data.get('queue_number', '000')
+            
+            conn.execute("""
+                INSERT INTO students (
+                    passport_number, surname, given_names, nationality,
+                    birth_date, expiry_date, phone, whatsapp, email,
+                    name_arabic, address, gender, photo_passport, photo_id, queue_number
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                p_num,
+                data.get('surname', ''),
+                data.get('given_names', ''),
+                data.get('nationality', ''),
+                data.get('birth_date', ''),
+                data.get('expiry_date', ''),
+                data.get('phone', ''),
+                data.get('whatsapp', ''),
+                data.get('email', ''),
+                data.get('name_arabic', ''),
+                data.get('address', ''),
+                data.get('gender', ''),
+                data.get('photo_passport', ''),
+                data.get('photo_id', ''),
+                queue_num
+            ))
+            
+            log.info(f"✅ Added student: {p_num}")
+            return {"success": True, "student_code": p_num, "queue_number": queue_num}
+    
+    except sqlite3.IntegrityError as e:
+        return {"success": False, "error": f"خطأ في البيانات: {e}"}
+    except Exception as e:
+        log.error(f"add_student_db error: {e}")
+        return {"success": False, "error": str(e)}
+
+
+def get_student_by_passport(passport_number: str) -> dict | None:
+    """جلب طالب برقم الجواز"""
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT * FROM students WHERE passport_number = ?",
+            (passport_number.strip().upper(),)
+        ).fetchone()
+        return dict_from_row(row)
+
+
+def get_all_students(synced_only=False) -> list:
+    """جلب كل الطلاب"""
+    with get_db() as conn:
+        if synced_only:
+            rows = conn.execute(
+                "SELECT * FROM students WHERE synced = 1 ORDER BY created_at DESC"
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM students WHERE synced = 0 OR synced IS NULL ORDER BY created_at DESC"
+            ).fetchall()
+        return [dict_from_row(r) for r in rows]
+
+
+def update_student_db(passport_number: str, updates: dict) -> dict:
+    """تحديث بيانات طالب"""
+    try:
+        with get_db() as conn:
+            student = get_student_by_passport(passport_number)
+            if not student:
+                return {"success": False, "error": "الطالب غير موجود"}
+            
+            set_parts = []
+            values = []
+            
+            field_map = {
+                'updated_passport': 'passport_number',
+                'updated_nat': 'nationality',
+                'updated_dob': 'birth_date',
+                'updated_exp': 'expiry_date',
+                'updated_phone': 'phone',
+                'updated_arabic': 'name_arabic',
+                'updated_address': 'address',
+                'branch_id': 'branch_id',
+                'category_id': 'category_id',
+            }
+            
+            for key, col in field_map.items():
+                if key in updates and updates[key]:
+                    set_parts.append(f"{col} = ?")
+                    values.append(updates[key])
+            
+            if 'updated_name' in updates and updates['updated_name']:
+                parts = updates['updated_name'].strip().split()
+                if len(parts) > 1:
+                    set_parts.extend(['surname = ?', 'given_names = ?'])
+                    values.extend([parts[-1], ' '.join(parts[:-1])])
+                else:
+                    set_parts.append('given_names = ?')
+                    values.append(updates['updated_name'])
+            
+            if set_parts:
+                set_parts.append("updated_at = datetime('now', 'localtime')")
+                values.append(passport_number.strip().upper())
+                sql = f"UPDATE students SET {', '.join(set_parts)} WHERE passport_number = ?"
+                conn.execute(sql, values)
+            
+            return {"success": True}
+    
+    except Exception as e:
+        log.error(f"update_student_db error: {e}")
+        return {"success": False, "error": str(e)}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Waiting List (SQLite)
+# ══════════════════════════════════════════════════════════════════════════════
+
+def add_to_waiting_list_db(name: str, student_id: int = None) -> str:
+    """إضافة طالب لقائمة الانتظار"""
+    with get_db() as conn:
+        last = conn.execute(
+            "SELECT MAX(CAST(queue_number AS INTEGER)) as max_q FROM waiting_list"
+        ).fetchone()
+        next_num = (last['max_q'] or 0) + 1
+        queue_num = f"{next_num:03d}"
+        
+        conn.execute(
+            "INSERT INTO waiting_list (student_id, queue_number, name) VALUES (?, ?, ?)",
+            (student_id, queue_num, name)
+        )
+        log.info(f"🔢 Waiting queue: {name} → #{queue_num}")
+        return queue_num
+
+
+def get_waiting_list_db() -> list:
+    """جلب قائمة الانتظار"""
+    with get_db() as conn:
+        rows = conn.execute("""
+            SELECT w.*, s.passport_number 
+            FROM waiting_list w
+            LEFT JOIN students s ON w.student_id = s.id
+            WHERE w.called = 0
+            ORDER BY w.queue_number ASC
+        """).fetchall()
+        return [dict_from_row(r) for r in rows]
+
+
+def call_student_db(passport: str) -> dict:
+    """مناداة طالب"""
+    with get_db() as conn:
+        student = conn.execute(
+            "SELECT id, name_arabic, given_names, queue_number FROM students WHERE passport_number = ?",
+            (passport.strip().upper(),)
+        ).fetchone()
+        
+        if not student:
+            return None
+        
+        name = student['name_arabic'] or student['given_names'] or '---'
+        queue_num = student['queue_number'] or '---'
+        
+        # إضافة للمناداة
+        conn.execute(
+            "DELETE FROM waiting_list WHERE student_id = ?",
+            (student['id'],)
+        )
+        conn.execute(
+            "INSERT INTO waiting_list (student_id, queue_number, name) VALUES (?, ?, ?)",
+            (student['id'], queue_num, name)
+        )
+        conn.execute(
+            "INSERT INTO call_log (student_id, queue_number) VALUES (?, ?)",
+            (student['id'], queue_num)
+        )
+        
+        return {"name": name, "queue_number": queue_num, "passport": passport}
+
+
+def reset_waiting_list_db():
+    """تصفير قائمة الانتظار"""
+    with get_db() as conn:
+        conn.execute("DELETE FROM waiting_list")
+    return {"success": True}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # Odoo Integration
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -342,33 +530,23 @@ def _get_odoo_connection():
     ctx = ssl._create_unverified_context()
     common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common', context=ctx)
     uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_PASSWORD, {})
-    if not uid:
-        raise ConnectionError("فشل التحقق من بيانات Odoo")
+    if not uid: raise ConnectionError("فشل التحقق من بيانات Odoo")
     models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object', context=ctx)
     return uid, models
 
 
 def find_country_id(country_code: str):
-    if not country_code:
-        return False
+    if not country_code: return False
     try:
         code = str(country_code).strip().upper()
-        if len(code) == 3 and code in ISO_MAPPING:
-            code = ISO_MAPPING[code]
-        
+        if len(code) == 3 and code in ISO_MAPPING: code = ISO_MAPPING[code]
         if os.path.exists('odoo_constants.json'):
-            try:
-                with open('odoo_constants.json', 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    countries = data.get('countries', [])
-                    for c in countries:
-                        if c.get('code') == code:
-                            return c['id']
-                    for c in countries:
-                        if code in str(c.get('name', '')).upper():
-                            return c['id']
-            except Exception as json_err:
-                log.warning(f"Local country lookup error: {json_err}")
+            with open('odoo_constants.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                for c in data.get('countries', []):
+                    if c.get('code') == code: return c['id']
+                for c in data.get('countries', []):
+                    if code in str(c.get('name', '')).upper(): return c['id']
         return False
     except Exception as e:
         log.warning(f"find_country_id error: {e}")
@@ -378,48 +556,49 @@ def find_country_id(country_code: str):
 def sync_to_odoo(student_data: dict, branch_id=None, category_id=None):
     try:
         uid, models = _get_odoo_connection()
-
-        arabic_name     = student_data.get('الإسم بالعربي') or 'طالب جديد'
-        passport_surname = student_data.get('اللقب') or ''
-        passport_given  = student_data.get('الأسماء') or ''
-        passport_no     = student_data.get('رقم الجواز') or ''
+        arabic_name = student_data.get('الإسم بالعربي') or student_data.get('name_arabic') or 'طالب جديد'
+        passport_surname = student_data.get('اللقب') or student_data.get('surname') or ''
+        passport_given = student_data.get('الأسماء') or student_data.get('given_names') or ''
+        passport_no = student_data.get('رقم الجواز') or student_data.get('passport_number') or ''
 
         vals: dict = {
-            'name':         arabic_name,
-            'arabic_name':  arabic_name,
-            'first_name':   passport_given,
-            'last_name':    passport_surname,
-            'passport_no':  passport_no or False,
-            'email':        student_data.get('الإيميل') or False,
-            'phone':        student_data.get('رقم التليفون') or False,
-            'mobile':       student_data.get('رقم الواتساب') or student_data.get('رقم التليفون') or False,
-            'street':       student_data.get('العنوان') or False,
+            'name': arabic_name,
+            'arabic_name': arabic_name,
+            'first_name': passport_given,
+            'last_name': passport_surname,
+            'passport_no': passport_no or False,
+            'email': student_data.get('الإيميل') or student_data.get('email') or False,
+            'phone': student_data.get('رقم التليفون') or student_data.get('phone') or False,
+            'mobile': student_data.get('رقم الواتساب') or student_data.get('whatsapp') or student_data.get('رقم التليفون') or student_data.get('phone') or False,
+            'street': student_data.get('العنوان') or student_data.get('address') or False,
         }
 
-        gender_raw = str(student_data.get('الجنس') or '').lower()
-        if gender_raw in ('male', 'm'):
-            vals['gender'] = 'm'
-        elif gender_raw in ('female', 'f'):
-            vals['gender'] = 'f'
+        gender_raw = str(student_data.get('الجنس') or student_data.get('gender') or '').lower()
+        if gender_raw in ('male', 'm'): vals['gender'] = 'm'
+        elif gender_raw in ('female', 'f'): vals['gender'] = 'f'
 
         vals['category_id'] = int(category_id) if category_id else DEFAULT_CATEGORY_ID
 
-        ok, err = _resolve_date(student_data, 'تاريخ الميلاد',        'birth_date',           vals)
-        if not ok: return False, err
+        birth = student_data.get('تاريخ الميلاد') or student_data.get('birth_date')
+        if birth:
+            parsed = parse_date_safe(str(birth))
+            if parsed: vals['birth_date'] = parsed
+            else: return False, f"⚠️ تاريخ الميلاد غير صحيح ({birth})"
 
-        ok, err = _resolve_date(student_data, 'تاريخ انتهاء الجواز', 'passport_expiry_date', vals)
-        if not ok: return False, err
+        expiry = student_data.get('تاريخ انتهاء الجواز') or student_data.get('expiry_date')
+        if expiry:
+            parsed = parse_date_safe(str(expiry))
+            if parsed: vals['passport_expiry_date'] = parsed
+            else: return False, f"⚠️ تاريخ انتهاء الجواز غير صحيح ({expiry})"
 
-        nat_val = student_data.get('الجنسية')
+        nat_val = student_data.get('الجنسية') or student_data.get('nationality')
         if nat_val:
-            if str(nat_val).isdigit():
-                vals['nationality'] = int(nat_val)
+            if str(nat_val).isdigit(): vals['nationality'] = int(nat_val)
             else:
                 c_id = find_country_id(str(nat_val))
-                if c_id:
-                    vals['nationality'] = c_id
+                if c_id: vals['nationality'] = c_id
 
-        passport_img = student_data.get('صورة الجواز', '')
+        passport_img = student_data.get('صورة الجواز') or student_data.get('photo_passport') or ''
         if passport_img:
             img_path = os.path.join(UPLOAD_FOLDER, passport_img)
             if os.path.exists(img_path):
@@ -428,7 +607,6 @@ def sync_to_odoo(student_data: dict, branch_id=None, category_id=None):
 
         b_id = int(branch_id) if branch_id else student_data.get('branch_id') or ODOO_BRANCH_ID
         vals['company_id'] = b_id
-
         vals = {k: (v if v is not None else False) for k, v in vals.items()}
 
         existing = []
@@ -437,18 +615,14 @@ def sync_to_odoo(student_data: dict, branch_id=None, category_id=None):
                                          'search', [[['passport_no', '=', passport_no]]])
 
         if existing:
-            models.execute_kw(ODOO_DB, uid, ODOO_PASSWORD, 'op.student', 'write',
-                               [existing, vals])
+            models.execute_kw(ODOO_DB, uid, ODOO_PASSWORD, 'op.student', 'write', [existing, vals])
             new_id = existing[0]
             log.info(f"✏️ Updated student in Odoo: ID={new_id}")
         else:
-            new_id = models.execute_kw(ODOO_DB, uid, ODOO_PASSWORD, 'op.student', 'create',
-                                        [vals])
+            new_id = models.execute_kw(ODOO_DB, uid, ODOO_PASSWORD, 'op.student', 'create', [vals])
             log.info(f"✅ Created student in Odoo: ID={new_id}")
 
-        if not new_id:
-            return False, "فشل إنشاء السجل في Odoo"
-
+        if not new_id: return False, "فشل إنشاء السجل في Odoo"
         return str(new_id), {}
 
     except Exception as e:
@@ -459,26 +633,21 @@ def sync_to_odoo(student_data: dict, branch_id=None, category_id=None):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Passport Extraction — Optimized Hybrid Engine
+# Passport Extraction
 # ══════════════════════════════════════════════════════════════════════════════
 
-
-
-
 def process_passport_image(image_path):
-    """استخراج بيانات MRZ من صورة الجواز (المحرك القديم الأصلي)"""
+    """استخراج بيانات MRZ من صورة الجواز"""
     try:
         import re
         time.sleep(0.5)
         img = Image.open(image_path)
         
-        # ⭐ تعديل جديد: تكبير الصورة 3x لتحسين القراءة (من النسخة الجديدة)
         w, h = img.size
         if min(w, h) < 1200:
             img = img.resize((w * 3, h * 3), Image.Resampling.LANCZOS)
             log.info(f"📐 تم تكبير الصورة 3x: {w}x{h} → {w*3}x{h*3}")
 
-        # تحسين الصورة - المحرك القديم
         img = ImageOps.grayscale(img)
         img = ImageOps.autocontrast(img)
         img = ImageEnhance.Contrast(img).enhance(2.0)
@@ -508,8 +677,7 @@ def process_passport_image(image_path):
             line1, line2 = mrz_pair
             
             def clean_mrz_line(l):
-                for char in '({[]})|\\/':
-                    l = l.replace(char, '<')
+                for char in '({[]})|\\/': l = l.replace(char, '<')
                 return re.sub(r'[^A-Z0-9<]', '', l.upper())
 
             line1 = clean_mrz_line(line1)[:44].ljust(44, '<')
@@ -522,7 +690,6 @@ def process_passport_image(image_path):
                 return "" if res.lower() == "none" else res
 
             def fmt_date_to_iso(d):
-                """تحويل YYMMDD إلى YYYY-MM-DD للفرونت إيند"""
                 if d and len(str(d)) == 6:
                     s = str(d)
                     try:
@@ -593,86 +760,17 @@ def process_passport_image(image_path):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Waiting List
-# ══════════════════════════════════════════════════════════════════════════════
-
-def add_to_waiting_list(name: str) -> str:
-    data = read_json(WAITING_LIST_FILE, {"next_number": 1, "students": []})
-    if not isinstance(data, dict):
-        data = {"next_number": 1, "students": []}
-    queue_num = f"{data.get('next_number', 1):03d}"
-    data.setdefault('students', []).append({"name": name, "queue_number": queue_num})
-    data['next_number'] = data.get('next_number', 1) + 1
-    if write_json(WAITING_LIST_FILE, data):
-        log.info(f"🔢 Waiting queue: {name} → #{queue_num}")
-        return queue_num
-    return "000"
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Student JSON Storage
-# ══════════════════════════════════════════════════════════════════════════════
-
-def save_to_json(student_data: dict) -> dict:
-    p_num = str(student_data.get('passport_number') or '').strip().upper()
-    if not p_num:
-        return {"success": False, "error": "رقم الجواز مطلوب"}
-    for attempt in range(3):
-        try:
-            students = read_json(JSON_FILE, [])
-            if any(str(s.get('رقم الجواز', '')).upper() == p_num for s in students):
-                log.warning(f"Duplicate passport: {p_num}")
-                return {"success": False, "error": "هذا الطالب مسجل سابقاً — الرجاء التوجه لقسم التسجيل"}
-            q_data = read_json(WAITING_LIST_FILE, {"next_number": 1})
-            if not isinstance(q_data, dict):
-                q_data = {"next_number": 1}
-            queue_num = f"{q_data.get('next_number', 1):03d}"
-            entry = {
-                "اللقب":              student_data.get('surname', ''),
-                "الأسماء":            student_data.get('given_names', ''),
-                "رقم الجواز":         p_num,
-                "الجنسية":            student_data.get('nationality', ''),
-                "تاريخ الميلاد":     student_data.get('birth_date', ''),
-                "تاريخ انتهاء الجواز": student_data.get('expiry_date', ''),
-                "رقم التليفون":       student_data.get('phone', ''),
-                "رقم الواتساب":       student_data.get('whatsapp', ''),
-                "الإيميل":            student_data.get('email', ''),
-                "الإسم بالعربي":      student_data.get('name_arabic', ''),
-                "العنوان":            student_data.get('address', ''),
-                "الجنس":              student_data.get('gender', ''),
-                "صورة الجواز":        student_data.get('photo_passport', ''),
-                "صورة الإقامة":       student_data.get('photo_id', ''),
-                "رقم_الانتظار":       queue_num,
-                "تاريخ التسجيل":      datetime.now().strftime("%Y-%m-%d %H:%M"),
-            }
-            students.append(entry)
-            if write_json(JSON_FILE, students):
-                log.info(f"✅ Saved student: {p_num} — Total: {len(students)}")
-                return {"success": True, "student_code": p_num, "queue_number": queue_num}
-            else:
-                raise OSError("فشل الكتابة للملف")
-        except Exception as e:
-            log.warning(f"Save attempt {attempt+1} failed: {e}")
-            if attempt == 2:
-                return {"success": False, "error": str(e)}
-            time.sleep(0.1)
-    return {"success": False, "error": "فشل الحفظ بعد 3 محاولات"}
-
-
-# ══════════════════════════════════════════════════════════════════════════════
 # Flask Routes — Static Pages
 # ══════════════════════════════════════════════════════════════════════════════
 
 @app.route('/')
 def index():
-    if MAINTENANCE_MODE:
-        return redirect('/maintenance')
+    if MAINTENANCE_MODE: return redirect('/maintenance')
     return send_from_directory('static', 'index.html')
 
 @app.route('/admin')
 def admin():
-    if 'admin_logged_in' not in session:
-        return redirect('/admin-login')
+    if 'admin_logged_in' not in session: return redirect('/admin-login')
     return send_from_directory('static', 'admin.html')
 
 @app.route('/admin-login')
@@ -717,12 +815,12 @@ def admin_logout():
 
 @app.route('/api/extract-passport', methods=['POST'])
 def extract_passport():
-    filename    = None
+    filename = None
     id_filename = None
     try:
         if 'file' not in request.files:
             return jsonify({"success": False, "error": "لم يتم رفع ملف"}), 400
-        file    = request.files['file']
+        file = request.files['file']
         id_file = request.files.get('id_file')
         passport_ext = get_image_extension_for_upload(file)
         if not passport_ext:
@@ -730,22 +828,18 @@ def extract_passport():
         ts = int(time.time() * 1000)
         filename = f"passport_{ts}.{passport_ext}"
         path = os.path.join(UPLOAD_FOLDER, filename)
-        try:
-            file.seek(0)
-        except Exception:
-            pass
+        try: file.seek(0)
+        except Exception: pass
         file.save(path)
         if id_file:
             id_ext = get_image_extension_for_upload(id_file)
             if id_ext:
-                try:
-                    id_file.seek(0)
-                except Exception:
-                    pass
+                try: id_file.seek(0)
+                except Exception: pass
                 id_filename = f"id_{ts}.{id_ext}"
                 id_file.save(os.path.join(UPLOAD_FOLDER, id_filename))
         result = process_passport_image(path)
-        result['file_name']    = filename
+        result['file_name'] = filename
         result['id_file_name'] = id_filename
         return jsonify(result)
     except Exception as e:
@@ -759,22 +853,18 @@ def register():
         data = request.get_json(force=True, silent=True)
         if not data:
             return jsonify({"success": False, "error": "لا توجد بيانات"}), 400
+        
         passport_number = str(data.get('passport_number') or '').strip().upper()
         if not passport_number:
             return jsonify({"success": False, "error": "رقم الجواز مطلوب"}), 400
-        result = save_to_json(data)
-        if not result.get('success'):
-            return jsonify(result), 400
-        name_arabic = (data.get('name_arabic') or
-                       f"{data.get('given_names', '')} {data.get('surname', '')}".strip())
-        queue_number = add_to_waiting_list(name_arabic)
-        students = read_json(JSON_FILE, [])
-        for s in students:
-            if str(s.get('رقم الجواز', '')).upper() == passport_number:
-                s['رقم_الانتظار'] = queue_number
-                break
-        write_json(JSON_FILE, students)
-        return jsonify({"success": True, "student_code": passport_number, "queue_number": queue_number})
+        
+        name_arabic = data.get('name_arabic') or f"{data.get('given_names', '')} {data.get('surname', '')}".strip()
+        queue_number = add_to_waiting_list_db(name_arabic)
+        data['queue_number'] = queue_number
+        
+        result = add_student_db(data)
+        return jsonify(result), 200 if result.get('success') else 400
+        
     except Exception as e:
         log.error(f"register error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
@@ -782,30 +872,23 @@ def register():
 
 @app.route('/api/waiting-list', methods=['GET'])
 def get_waiting_list():
-    data = read_json(WAITING_LIST_FILE, {"students": []})
-    return jsonify({"success": True, "students": data.get('students', []) if isinstance(data, dict) else []})
+    students = get_waiting_list_db()
+    return jsonify({"success": True, "students": students})
 
 
 @app.route('/api/call-student', methods=['POST'])
 def call_student():
     try:
-        data     = request.get_json()
+        data = request.get_json()
         passport = str(data.get('passport') or '').strip().upper()
         if not passport:
             return jsonify({"success": False, "error": "رقم الجواز مطلوب"})
-        students, idx = find_student_by_passport(passport)
-        if idx == -1:
-            return jsonify({"success": False, "error": "الطالب غير موجود"})
-        student   = students[idx]
-        name      = student.get('الإسم بالعربي') or student.get('الأسماء') or '---'
-        queue_num = student.get('رقم_الانتظار') or '---'
-        q_data = read_json(WAITING_LIST_FILE, {"next_number": 1, "students": []})
-        if not isinstance(q_data, dict):
-            q_data = {"next_number": 1, "students": []}
-        q_data['students'] = [s for s in q_data.get('students', []) if s.get('name') != name]
-        q_data['students'].insert(0, {"name": name, "queue_number": queue_num})
-        write_json(WAITING_LIST_FILE, q_data)
-        return jsonify({"success": True, "name": name, "queue_number": queue_num})
+        
+        result = call_student_db(passport)
+        if result:
+            return jsonify({"success": True, "name": result['name'], "queue_number": result['queue_number']})
+        return jsonify({"success": False, "error": "الطالب غير موجود"})
+        
     except Exception as e:
         log.error(f"call_student error: {e}")
         return jsonify({"success": False, "error": str(e)})
@@ -814,18 +897,15 @@ def call_student():
 @app.route('/api/reset-waiting-list', methods=['POST'])
 @admin_required
 def reset_waiting_list():
-    write_json(WAITING_LIST_FILE, {"next_number": 1, "students": []})
+    reset_waiting_list_db()
     return jsonify({"success": True})
 
 
 @app.route('/api/list-students', methods=['GET'])
 @admin_required
 def list_students():
-    students = read_json(JSON_FILE, [])
-    pending  = [s for s in students if not s.get('odoo_student_code') or
-                str(s.get('odoo_student_code')).lower() in ('true', 'false', '')]
-    pending.reverse()
-    return jsonify({'success': True, 'students': pending})
+    students = get_all_students(synced_only=False)
+    return jsonify({'success': True, 'students': students})
 
 
 @app.route('/api/search-student', methods=['GET'])
@@ -833,26 +913,25 @@ def search_student():
     code = str(request.args.get('code') or '').strip().upper()
     if not code:
         return jsonify({"success": False, "error": "كود الطالب مطلوب"}), 400
-    students, idx = find_student_by_passport(code)
-    if idx == -1:
-        return jsonify({"success": False, "error": "لم يتم العثور على الطالب"}), 404
-    return jsonify({"success": True, "data": students[idx]})
+    
+    student = get_student_by_passport(code)
+    if not student:
+        return jsonify({"success": False, "error": f"لم يتم العثور على طالب برقم الجواز {code}"}), 404
+    
+    return jsonify({"success": True, "data": student})
 
 
 @app.route('/api/update-student', methods=['POST'])
 def update_student():
     try:
-        data    = request.get_json()
-        p_code  = str(data.get('student_code') or '').strip().upper()
+        data = request.get_json()
+        p_code = str(data.get('student_code') or '').strip().upper()
         if not p_code:
             return jsonify({"success": False, "error": "رقم الجواز مطلوب"})
-        students, idx = find_student_by_passport(p_code)
-        if idx == -1:
-            return jsonify({"success": False, "error": "الطالب غير موجود"})
-        students[idx] = apply_field_updates(students[idx], data)
-        students[idx]['تاريخ التعديل'] = datetime.now().strftime("%Y-%m-%d %H:%M")
-        write_json(JSON_FILE, students)
-        return jsonify({"success": True})
+        
+        result = update_student_db(p_code, data)
+        return jsonify(result)
+        
     except Exception as e:
         log.error(f"update_student error: {e}")
         return jsonify({"success": False, "error": str(e)})
@@ -862,23 +941,40 @@ def update_student():
 @admin_required
 def print_application():
     student_code = str(request.form.get('student_code') or '').strip().upper()
-    branch_id    = request.form.get('branch_id')
-    category_id  = request.form.get('category_id')
+    branch_id = request.form.get('branch_id')
+    category_id = request.form.get('category_id')
+    
     if not student_code:
         return jsonify({'success': False, 'error': 'رقم الجواز مطلوب'})
+    
     try:
-        students, idx = find_student_by_passport(student_code)
-        if idx == -1:
+        student = get_student_by_passport(student_code)
+        if not student:
             return jsonify({'success': False, 'error': 'الطالب غير موجود'})
-        students[idx] = apply_field_updates(students[idx], request.form)
-        odoo_name, sync_report = sync_to_odoo(students[idx], branch_id=branch_id, category_id=category_id)
+        
+        # تحديث البيانات قبل المزامنة
+        update_student_db(student_code, dict(request.form))
+        student = get_student_by_passport(student_code)
+        
+        # المزامنة مع Odoo
+        odoo_name, sync_report = sync_to_odoo(student, branch_id=branch_id, category_id=category_id)
+        
         if odoo_name:
-            students[idx]['odoo_student_code'] = odoo_name
-        write_json(JSON_FILE, students)
-        if odoo_name:
-            return jsonify({'success': True, 'data': students[idx], 'odoo_student_code': odoo_name, 'sync_report': sync_report})
+            with get_db() as conn:
+                conn.execute(
+                    "UPDATE students SET odoo_student_code = ?, synced = 1 WHERE passport_number = ?",
+                    (str(odoo_name), student_code)
+                )
+            
+            return jsonify({
+                'success': True,
+                'data': student,
+                'odoo_student_code': str(odoo_name),
+                'sync_report': sync_report
+            })
         else:
             return jsonify({'success': False, 'error': f'فشلت المزامنة: {sync_report}'})
+            
     except Exception as e:
         log.error(f"print_application error: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -890,9 +986,13 @@ def get_odoo_data():
         if os.path.exists('odoo_constants.json'):
             with open('odoo_constants.json', 'r', encoding='utf-8') as f:
                 constants = json.load(f)
-            return jsonify({'success': True, 'branches': constants.get('branches', []),
-                           'categories': constants.get('categories', []),
-                           'countries': constants.get('countries', []), 'source': 'local'})
+            return jsonify({
+                'success': True,
+                'branches': constants.get('branches', []),
+                'categories': constants.get('categories', []),
+                'countries': constants.get('countries', []),
+                'source': 'local'
+            })
         return jsonify({'success': False, 'error': 'ملف البيانات المحلية غير موجود'})
     except Exception as e:
         log.error(f"get_odoo_data error: {e}")
@@ -909,9 +1009,9 @@ def toggle_maintenance():
 
 @app.route('/api/qrcode')
 def generate_qrcode():
-    ip  = get_local_ip()
+    ip = get_local_ip()
     url = f"http://{ip}:5000/"
-    qr  = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=4)
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=4)
     qr.add_data(url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="#00c8ff", back_color="#0a0e1a")
@@ -930,7 +1030,7 @@ def server_url():
 @app.route('/api/print-qrcodes', methods=['POST'])
 @admin_required
 def print_qrcodes():
-    students = read_json(JSON_FILE, [])
+    students = get_all_students()
     return jsonify({'success': True, 'students': students})
 
 
@@ -940,10 +1040,11 @@ def print_qrcodes():
 
 if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    init_db()  # إنشاء قاعدة البيانات تلقائياً
     ip = get_local_ip()
     print(f"\n{'='*55}")
-    print(f"  Fajr Center - Registration System v4.5")
-    print(f"  Optimized Hybrid Engine (3x Upscale)")
+    print(f"  Fajr Center - Registration System v5.0")
+    print(f"  SQLite Database Edition")
     print(f"  http://{ip}:5000")
     print(f"  Admin: http://{ip}:5000/admin-login")
     print(f"  Waiting: http://{ip}:5000/waiting")

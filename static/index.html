@@ -77,6 +77,7 @@
       .container {
         padding: 20px 15px 40px;
       }
+
       .header {
         margin-bottom: 30px;
       }
@@ -100,8 +101,7 @@
       width: 150px;
       height: auto;
       object-fit: contain;
-      filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) 
-              drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
+      filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
       transition: all 0.3s ease;
     }
 
@@ -246,20 +246,26 @@
         margin-bottom: 32px;
         gap: 0;
       }
+
       .step-line {
         width: 35px;
       }
+
       .step-num {
         width: 32px;
         height: 32px;
         font-size: 13px;
       }
+
       .step-label {
-        display: none; /* Hide labels on mobile to save space */
+        display: none;
+        /* Hide labels on mobile to save space */
       }
+
       .step-line {
         margin-bottom: 0;
-        margin-top: 16px; /* Align with center of step-num */
+        margin-top: 16px;
+        /* Align with center of step-num */
       }
     }
 
@@ -281,6 +287,7 @@
         padding: 20px 16px;
         border-radius: 16px;
       }
+
       .card-title {
         font-size: 16px;
         margin-bottom: 20px;
@@ -560,22 +567,23 @@
       display: none !important;
     }
 
-    .field input.valid, 
-    .field select.valid, 
+    .field input.valid,
+    .field select.valid,
     .field textarea.valid {
       border-color: var(--success) !important;
       background: rgba(16, 185, 129, 0.05) !important;
       box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
     }
 
-    .field input.failed, 
-    .field select.failed, 
+    .field input.failed,
+    .field select.failed,
     .field textarea.failed,
     .field input.expired {
       border-color: var(--error) !important;
       background: rgba(239, 68, 68, 0.05) !important;
       box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
     }
+
     .manual-hint {
       color: var(--error);
       font-size: 11px;
@@ -583,7 +591,9 @@
       display: none;
       font-weight: 600;
     }
-    .failed + .manual-hint, .failed + .field-tag + .manual-hint {
+
+    .failed+.manual-hint,
+    .failed+.field-tag+.manual-hint {
       display: block;
     }
 
@@ -596,19 +606,23 @@
       font-weight: 600;
       transition: opacity 0.2s;
     }
-    .field-action-link:hover { opacity: 0.8; }
+
+    .field-action-link:hover {
+      opacity: 0.8;
+    }
 
     /* Map Modal */
     #map-modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       z-index: 10000;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 20px;
     }
+
     .map-container {
       width: 100%;
       max-width: 800px;
@@ -619,7 +633,12 @@
       position: relative;
       overflow: hidden;
     }
-    #map { height: 100%; width: 100%; }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
     .close-map {
       position: absolute;
       top: 15px;
@@ -635,9 +654,17 @@
     }
 
     @keyframes flashRed {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     /* Divider */
@@ -797,8 +824,15 @@
     }
 
     @keyframes popIn {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .code-box {
@@ -988,41 +1022,51 @@
         <span class="icon icon-gold">📜</span>
         سياسات وقواعد مركز فجر
       </div>
-      
-      <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; font-size: 14px; line-height: 1.8; color: var(--text-dim); max-height: 350px; overflow-y: auto;">
-        <p style="color: var(--accent); font-weight: 700; margin-bottom: 15px;">عزيزي الطالب، يرجى قراءة السياسات التالية بعناية قبل البدء في عملية التسجيل:</p>
-        
+
+      <div
+        style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; font-size: 14px; line-height: 1.8; color: var(--text-dim); max-height: 350px; overflow-y: auto;">
+        <p style="color: var(--accent); font-weight: 700; margin-bottom: 15px;">عزيزي الطالب، يرجى قراءة السياسات
+          التالية بعناية قبل البدء في عملية التسجيل:</p>
+
         <ul style="list-style: none; padding: 0;">
           <li style="margin-bottom: 12px; display: flex; gap: 10px;">
-            <span>📍</span> 
+            <span>📍</span>
             <span><b>الالتزام بالمواعيد:</b> يجب الحضور إلى المحاضرات قبل الموعد المحدد بـ 10 دقائق على الأقل.</span>
           </li>
           <li style="margin-bottom: 12px; display: flex; gap: 10px;">
-            <span>🚫</span> 
-            <span><b>سياسة الإلغاء:</b> في حال الرغبة في تأجيل أو إلغاء دورة تدريبية، يجب إخطار الإدارة قبل موعدها بـ 48 ساعة.</span>
+            <span>🚫</span>
+            <span><b>سياسة الإلغاء:</b> في حال الرغبة في تأجيل أو إلغاء دورة تدريبية، يجب إخطار الإدارة قبل موعدها بـ 48
+              ساعة.</span>
           </li>
           <li style="margin-bottom: 12px; display: flex; gap: 10px;">
-            <span>📄</span> 
-            <span><b>صحة البيانات:</b> يقر الطالب بأن كافة البيانات والمستندات المرفقة صحيحة ومطابقة للواقع وتحت مسؤوليته الشخصية.</span>
+            <span>📄</span>
+            <span><b>صحة البيانات:</b> يقر الطالب بأن كافة البيانات والمستندات المرفقة صحيحة ومطابقة للواقع وتحت
+              مسؤوليته الشخصية.</span>
           </li>
           <li style="margin-bottom: 12px; display: flex; gap: 10px;">
-            <span>💰</span> 
-            <span><b>المصروفات الدراسية:</b> المصروفات المدفوعة غير قابلة للاسترداد بعد بدء الدورة التدريبية إلا في حالات استثنائية وبموافقة الإدارة.</span>
+            <span>💰</span>
+            <span><b>المصروفات الدراسية:</b> المصروفات المدفوعة غير قابلة للاسترداد بعد بدء الدورة التدريبية إلا في
+              حالات استثنائية وبموافقة الإدارة.</span>
           </li>
           <li style="margin-bottom: 12px; display: flex; gap: 10px;">
-            <span>🤝</span> 
-            <span><b>السلوك العام:</b> يتعهد الطالب بالالتزام بحسن السير والسلوك داخل أروقة المركز واحترام كافة المعلمين والزملاء.</span>
+            <span>🤝</span>
+            <span><b>السلوك العام:</b> يتعهد الطالب بالالتزام بحسن السير والسلوك داخل أروقة المركز واحترام كافة المعلمين
+              والزملاء.</span>
           </li>
           <li style="margin-bottom: 12px; display: flex; gap: 10px;">
-            <span>⚠️</span> 
-            <span><b>المفقودات:</b> المركز غير مسؤول عن فقدان أي مقتنيات شخصية داخل القاعات؛ لذا يرجى الحفاظ على متعلقاتكم.</span>
+            <span>⚠️</span>
+            <span><b>المفقودات:</b> المركز غير مسؤول عن فقدان أي مقتنيات شخصية داخل القاعات؛ لذا يرجى الحفاظ على
+              متعلقاتكم.</span>
           </li>
         </ul>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 10px; background: rgba(0, 200, 255, 0.05); border-radius: 8px; border: 1px solid rgba(0, 200, 255, 0.1);">
-        <input type="checkbox" id="policy-check" style="width: 20px; height: 20px; cursor: pointer;" onchange="document.getElementById('btn-agree').disabled = !this.checked">
-        <label for="policy-check" style="font-size: 14px; color: #fff; cursor: pointer; font-weight: 600;">أوافق على كافة الشروط والسياسات المذكورة أعلاه</label>
+      <div
+        style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 10px; background: rgba(0, 200, 255, 0.05); border-radius: 8px; border: 1px solid rgba(0, 200, 255, 0.1);">
+        <input type="checkbox" id="policy-check" style="width: 20px; height: 20px; cursor: pointer;"
+          onchange="document.getElementById('btn-agree').disabled = !this.checked">
+        <label for="policy-check" style="font-size: 14px; color: #fff; cursor: pointer; font-weight: 600;">أوافق على
+          كافة الشروط والسياسات المذكورة أعلاه</label>
       </div>
 
       <button class="btn-submit" id="btn-agree" onclick="goToUpload()" disabled>
@@ -1033,7 +1077,8 @@
     <!-- Step 2: Upload -->
     <div class="card" id="step-upload">
       <div class="card-title">
-        <button class="btn-back" onclick="goBackToPolicy()" style="margin-bottom:0; margin-left:15px; padding:0">←</button>
+        <button class="btn-back" onclick="goBackToPolicy()"
+          style="margin-bottom:0; margin-left:15px; padding:0">←</button>
         <span class="icon icon-blue">📎</span>
         رفع المستندات
       </div>
@@ -1131,7 +1176,8 @@
       <div class="form-grid">
         <div class="field full">
           <label>الإسم باللغة العربية *</label>
-          <input type="text" id="f-name-arabic" placeholder="أدخل اسمك بالكامل باللغة العربية" oninput="validateField(this)" required>
+          <input type="text" id="f-name-arabic" placeholder="أدخل اسمك بالكامل باللغة العربية"
+            oninput="validateField(this)" required>
         </div>
         <div class="field">
           <label>الجنس *</label>
@@ -1151,7 +1197,8 @@
         </div>
         <div class="field full">
           <label>البريد الإلكتروني *</label>
-          <input type="email" id="f-email" placeholder="example@email.com" dir="ltr" oninput="validateField(this)" required>
+          <input type="email" id="f-email" placeholder="example@email.com" dir="ltr" oninput="validateField(this)"
+            required>
         </div>
         <div class="field full">
           <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -1161,7 +1208,8 @@
               <span class="field-action-link" onclick="openMapModal()">🗺️ الخريطة</span>
             </div>
           </div>
-          <textarea id="f-address" placeholder="المحافظة، المدينة، الشارع..." oninput="validateField(this)" required></textarea>
+          <textarea id="f-address" placeholder="المحافظة، المدينة، الشارع..." oninput="validateField(this)"
+            required></textarea>
         </div>
       </div>
 
@@ -1207,7 +1255,7 @@
     function validateField(el) {
       const id = el.id;
       const val = el.value.trim();
-      
+
       let isValid = val.length > 0;
       if (val.includes('<') || val.includes('|') || val.includes('None') || val.includes('手')) {
         isValid = false;
@@ -1229,14 +1277,14 @@
 
     function checkFormReady() {
       const mandatory = [
-        'f-fullname', 'f-passport', 'f-nationality', 'f-dob', 'f-expiry', 
+        'f-fullname', 'f-passport', 'f-nationality', 'f-dob', 'f-expiry',
         'f-name-arabic', 'f-phone', 'f-email', 'f-address', 'f-gender'
       ];
       let allGood = true;
       mandatory.forEach(id => {
         const el = document.getElementById(id);
         const val = el ? el.value.trim() : '';
-        
+
         // إذا كان الحقل فارغاً وهو إجباري، نعتبره خطأ
         if (!val || (el && el.classList.contains('failed'))) {
           allGood = false;
@@ -1383,52 +1431,52 @@
         if (!el) continue;
 
         if (fieldId === 'f-nationality') {
-            const found = applyNationalityCode(el, data.nationality_code2);
-            if (!found) {
-                el.classList.add('failed');
-                el.classList.remove('valid', 'auto-filled');
-            }
+          const found = applyNationalityCode(el, data.nationality_code2);
+          if (!found) {
+            el.classList.add('failed');
+            el.classList.remove('valid', 'auto-filled');
+          }
         } else if (val && !val.includes('يرجى') && !val.includes('Write') && !val.includes('Manual')) {
           // التواريخ تصل بصيغة YYYY-MM-DD|EXPIRED أو YYYY-MM-DD
           let finalVal = val;
           let isExpired = false;
-          
+
           if (val.includes('|EXPIRED')) {
-              finalVal = val.split('|')[0];
-              isExpired = true;
+            finalVal = val.split('|')[0];
+            isExpired = true;
           }
 
           el.value = finalVal;
-          
+
           if (el.type === 'date' && el.value !== finalVal) {
-              el.classList.add('failed');
-              el.classList.remove('valid', 'auto-filled');
-              el.value = '';
+            el.classList.add('failed');
+            el.classList.remove('valid', 'auto-filled');
+            el.value = '';
           } else {
-              el.classList.add('auto-filled', 'valid');
-              el.classList.remove('failed');
-              
-              // إظهار تنبيه إذا كان منتهي الصلاحية
-              if (isExpired && fieldId === 'f-expiry') {
-                  const warning = document.createElement('div');
-                  warning.className = 'error-msg';
-                  warning.style.color = '#ff4d4d';
-                  warning.style.fontSize = '0.8rem';
-                  warning.style.marginTop = '5px';
-                  warning.style.fontWeight = '600';
-                  warning.id = 'expiry-warning';
-                  warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> عذراً، هذا الجواز منتهي الصلاحية!';
-                  
-                  // إزالة أي تحذير قديم
-                  const old = el.parentNode.querySelector('#expiry-warning');
-                  if (old) old.remove();
-                  
-                  el.parentNode.appendChild(warning);
-                  
-                  // تحويل الخانة للون الأحمر (expired) دون إظهار "يرجى الإدخال يدوياً"
-                  el.classList.remove('valid');
-                  el.classList.add('expired');
-              }
+            el.classList.add('auto-filled', 'valid');
+            el.classList.remove('failed');
+
+            // إظهار تنبيه إذا كان منتهي الصلاحية
+            if (isExpired && fieldId === 'f-expiry') {
+              const warning = document.createElement('div');
+              warning.className = 'error-msg';
+              warning.style.color = '#ff4d4d';
+              warning.style.fontSize = '0.8rem';
+              warning.style.marginTop = '5px';
+              warning.style.fontWeight = '600';
+              warning.id = 'expiry-warning';
+              warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> عذراً، هذا الجواز منتهي الصلاحية!';
+
+              // إزالة أي تحذير قديم
+              const old = el.parentNode.querySelector('#expiry-warning');
+              if (old) old.remove();
+
+              el.parentNode.appendChild(warning);
+
+              // تحويل الخانة للون الأحمر (expired) دون إظهار "يرجى الإدخال يدوياً"
+              el.classList.remove('valid');
+              el.classList.add('expired');
+            }
           }
         } else {
           el.value = '';
@@ -1441,9 +1489,9 @@
       const gEl = document.getElementById('f-gender');
       if (data.gender) {
         const g = data.gender.trim().toUpperCase();
-        const genderVal = (g === 'M' || g === 'MALE')   ? 'male'
-                        : (g === 'F' || g === 'FEMALE') ? 'female'
-                        : '';
+        const genderVal = (g === 'M' || g === 'MALE') ? 'male'
+          : (g === 'F' || g === 'FEMALE') ? 'female'
+            : '';
         if (genderVal) {
           gEl.value = genderVal;
           gEl.classList.add('auto-filled', 'valid');
@@ -1474,7 +1522,7 @@
     function goBackToPolicy() {
       document.getElementById('step-upload').classList.remove('active');
       document.getElementById('step-policy').classList.add('active');
-      
+
       document.getElementById('si-1').classList.remove('done');
       document.getElementById('si-1').classList.add('active');
       document.getElementById('si-2').style.opacity = '0.4';
@@ -1498,7 +1546,7 @@
     function goBack() {
       document.getElementById('step-review').classList.remove('active');
       document.getElementById('step-upload').classList.add('active');
-      
+
       document.getElementById('si-2').classList.remove('done');
       document.getElementById('si-2').classList.add('active');
       document.getElementById('si-3').style.opacity = '0.4';
@@ -1524,17 +1572,17 @@
       ];
 
       for (let field of mandatory) {
-          const el = document.getElementById(field.id);
-          const val = el ? el.value.trim() : '';
-          if (!val || (el && el.classList.contains('failed'))) {
-              showToast(`❗ يرجى التأكد من حقل: ${field.name}`, 'error');
-              if (el) {
-                  el.classList.add('failed');
-                  el.focus();
-                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
-              return;
+        const el = document.getElementById(field.id);
+        const val = el ? el.value.trim() : '';
+        if (!val || (el && el.classList.contains('failed'))) {
+          showToast(`❗ يرجى التأكد من حقل: ${field.name}`, 'error');
+          if (el) {
+            el.classList.add('failed');
+            el.focus();
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
+          return;
+        }
       }
 
       if (!idFileName) { showToast('❗ يرجى رفع صورة الإقامة', 'error'); return; }
@@ -1610,7 +1658,7 @@
     function showStep4() {
       document.getElementById('step-review').classList.remove('active');
       document.getElementById('step-success-card').classList.add('active');
-      
+
       document.getElementById('si-3').classList.add('done');
       document.getElementById('si-3').classList.remove('active');
       document.getElementById('si-4').style.opacity = '1';
@@ -1663,7 +1711,7 @@
               showToast('✅ تم تحديد العنوان من الخريطة');
               setTimeout(closeMapModal, 1500); // إغلاق تلقائي بعد ثانية ونصف
             }
-          } catch(err) {
+          } catch (err) {
             showToast('❌ فشل جلب العنوان', 'error');
           }
         });
@@ -1681,102 +1729,102 @@
     // ─── قاموس محلي للأسماء الشائعة في جوازات السفر ─────────────────────────
     const NAME_DICT = {
       // أسماء ذكور شائعة
-      'ABDELFATTAH':'عبد الفتاح','ABDELRAHMAN':'عبد الرحمن','ABDULRAHMAN':'عبد الرحمن',
-      'ABDELAZIZ':'عبد العزيز','ABDULAZIZ':'عبد العزيز','ABDELHAMID':'عبد الحميد',
-      'ABDELKARIM':'عبد الكريم','ABDULKARIM':'عبد الكريم','ABDELMALIK':'عبد الملك',
-      'ABDELWAHAB':'عبد الوهاب','ABDELNASSER':'عبد الناصر','ABDELSALAM':'عبد السلام',
-      'ABDALLA':'عبد الله','ABDALLAH':'عبد الله','ABDUALLAH':'عبد الله','ABULLAH':'عبد الله',
-      'ABDULAH':'عبد الله','ABDULLAH':'عبد الله','AHMED':'أحمد','AHMAD':'أحمد',
-      'AHMED':'أحمد','MUHAMMED':'محمد','MUHAMMAD':'محمد','MOHAMMED':'محمد','MOHAMAD':'محمد',
-      'MOHAMED':'محمد','ALI':'علي','OMAR':'عمر','UMAR':'عمر','YOUSSEF':'يوسف',
-      'YUSUF':'يوسف','YOUSEF':'يوسف','IBRAHIM':'إبراهيم','ISMAIL':'إسماعيل',
-      'ISMAEL':'إسماعيل','MUSTAFA':'مصطفى','MOSTAFA':'مصطفى','HASSAN':'حسن',
-      'HUSSEIN':'حسين','HUSAIN':'حسين','HOSSEIN':'حسين','KHALED':'خالد','KHALID':'خالد',
-      'SAMIR':'سامر','SAMER':'سامر','TAREK':'طارق','TARIQ':'طارق','WALID':'وليد',
-      'WAEL':'وائل','HANY':'هاني','HANI':'هاني','SHERIF':'شريف','SHARIF':'شريف',
-      'KAREEM':'كريم','KARIM':'كريم','NASSER':'ناصر','NASER':'ناصر','OSAMA':'أسامة',
-      'USAMA':'أسامة','HAMID':'حامد','FATHY':'فتحي','FATHI':'فتحي','SALAH':'صلاح',
-      'SALEH':'صالح','SALIH':'صالح','ADEL':'عادل','AMGAD':'أمجد','AMJAD':'أمجد',
-      'ASHRAF':'أشرف','EHAB':'إيهاب','EMAD':'عماد','ESSAM':'عصام','AYMAN':'أيمن',
-      'HAZEM':'حازم','HAZIM':'حازم','HISHAM':'هشام','HESHAM':'هشام','MAHER':'ماهر',
-      'MAHMOUD':'محمود','MAHMOOD':'محمود','MAGDY':'مجدي','MAGDI':'مجدي','MAGED':'ماجد',
-      'MAJED':'ماجد','NABIL':'نبيل','RAAFAT':'رأفت','RAMADAN':'رمضان','RAMZY':'رامز',
-      'SAAD':'سعد','SAMY':'سامي','SAMI':'سامي','TAMER':'تامر','WISSAM':'وسام',
-      'YASSER':'ياسر','YASIR':'ياسر','ZIAD':'زياد','ZIYAD':'زياد',
+      'ABDELFATTAH': 'عبد الفتاح', 'ABDELRAHMAN': 'عبد الرحمن', 'ABDULRAHMAN': 'عبد الرحمن',
+      'ABDELAZIZ': 'عبد العزيز', 'ABDULAZIZ': 'عبد العزيز', 'ABDELHAMID': 'عبد الحميد',
+      'ABDELKARIM': 'عبد الكريم', 'ABDULKARIM': 'عبد الكريم', 'ABDELMALIK': 'عبد الملك',
+      'ABDELWAHAB': 'عبد الوهاب', 'ABDELNASSER': 'عبد الناصر', 'ABDELSALAM': 'عبد السلام',
+      'ABDALLA': 'عبد الله', 'ABDALLAH': 'عبد الله', 'ABDUALLAH': 'عبد الله', 'ABULLAH': 'عبد الله',
+      'ABDULAH': 'عبد الله', 'ABDULLAH': 'عبد الله', 'AHMED': 'أحمد', 'AHMAD': 'أحمد',
+      'AHMED': 'أحمد', 'MUHAMMED': 'محمد', 'MUHAMMAD': 'محمد', 'MOHAMMED': 'محمد', 'MOHAMAD': 'محمد',
+      'MOHAMED': 'محمد', 'ALI': 'علي', 'OMAR': 'عمر', 'UMAR': 'عمر', 'YOUSSEF': 'يوسف',
+      'YUSUF': 'يوسف', 'YOUSEF': 'يوسف', 'IBRAHIM': 'إبراهيم', 'ISMAIL': 'إسماعيل',
+      'ISMAEL': 'إسماعيل', 'MUSTAFA': 'مصطفى', 'MOSTAFA': 'مصطفى', 'HASSAN': 'حسن',
+      'HUSSEIN': 'حسين', 'HUSAIN': 'حسين', 'HOSSEIN': 'حسين', 'KHALED': 'خالد', 'KHALID': 'خالد',
+      'SAMIR': 'سامر', 'SAMER': 'سامر', 'TAREK': 'طارق', 'TARIQ': 'طارق', 'WALID': 'وليد',
+      'WAEL': 'وائل', 'HANY': 'هاني', 'HANI': 'هاني', 'SHERIF': 'شريف', 'SHARIF': 'شريف',
+      'KAREEM': 'كريم', 'KARIM': 'كريم', 'NASSER': 'ناصر', 'NASER': 'ناصر', 'OSAMA': 'أسامة',
+      'USAMA': 'أسامة', 'HAMID': 'حامد', 'FATHY': 'فتحي', 'FATHI': 'فتحي', 'SALAH': 'صلاح',
+      'SALEH': 'صالح', 'SALIH': 'صالح', 'ADEL': 'عادل', 'AMGAD': 'أمجد', 'AMJAD': 'أمجد',
+      'ASHRAF': 'أشرف', 'EHAB': 'إيهاب', 'EMAD': 'عماد', 'ESSAM': 'عصام', 'AYMAN': 'أيمن',
+      'HAZEM': 'حازم', 'HAZIM': 'حازم', 'HISHAM': 'هشام', 'HESHAM': 'هشام', 'MAHER': 'ماهر',
+      'MAHMOUD': 'محمود', 'MAHMOOD': 'محمود', 'MAGDY': 'مجدي', 'MAGDI': 'مجدي', 'MAGED': 'ماجد',
+      'MAJED': 'ماجد', 'NABIL': 'نبيل', 'RAAFAT': 'رأفت', 'RAMADAN': 'رمضان', 'RAMZY': 'رامز',
+      'SAAD': 'سعد', 'SAMY': 'سامي', 'SAMI': 'سامي', 'TAMER': 'تامر', 'WISSAM': 'وسام',
+      'YASSER': 'ياسر', 'YASIR': 'ياسر', 'ZIAD': 'زياد', 'ZIYAD': 'زياد',
       // أسماء إناث شائعة
-      'FATIMA':'فاطمة','FATHIA':'فاطمة','AISHA':'عائشة','AYSHA':'عائشة',
-      'MARIAM':'مريم','MARYAM':'مريم','NOUR':'نور','NUR':'نور','SARAH':'سارة',
-      'SARA':'سارة','HANA':'هناء','HANAA':'هناء','DINA':'دينا','RANIA':'رانيا',
-      'RANA':'رنا','HEBA':'هبة','MONA':'منى','NADIA':'نادية','NADYA':'نادية',
-      'AMIRA':'أميرة','AMIR':'أمير','NOHA':'نها','EMAN':'إيمان','IMAN':'إيمان',
-      'REEM':'ريم','RIHAM':'ريهام','YASMINE':'ياسمين','SHAIMAA':'شيماء','SHAIMA':'شيماء',
-      'DOAA':'دعاء','DUA':'دعاء','GHADA':'غادة','ABEER':'عبير','ASMAA':'أسماء',
-      'ASMA':'أسماء','LOBNA':'لبنى','LUBNA':'لبنى','MANAR':'منار','MAYSA':'ميساء',
-      'NAGWA':'نجوى','NAGLAA':'نجلاء','NIHAL':'نهال','RADWA':'ردوى','SAMIA':'سامية',
-      'SUHA':'سها','WAFAA':'وفاء','WAFA':'وفاء',
+      'FATIMA': 'فاطمة', 'FATHIA': 'فاطمة', 'AISHA': 'عائشة', 'AYSHA': 'عائشة',
+      'MARIAM': 'مريم', 'MARYAM': 'مريم', 'NOUR': 'نور', 'NUR': 'نور', 'SARAH': 'سارة',
+      'SARA': 'سارة', 'HANA': 'هناء', 'HANAA': 'هناء', 'DINA': 'دينا', 'RANIA': 'رانيا',
+      'RANA': 'رنا', 'HEBA': 'هبة', 'MONA': 'منى', 'NADIA': 'نادية', 'NADYA': 'نادية',
+      'AMIRA': 'أميرة', 'AMIR': 'أمير', 'NOHA': 'نها', 'EMAN': 'إيمان', 'IMAN': 'إيمان',
+      'REEM': 'ريم', 'RIHAM': 'ريهام', 'YASMINE': 'ياسمين', 'SHAIMAA': 'شيماء', 'SHAIMA': 'شيماء',
+      'DOAA': 'دعاء', 'DUA': 'دعاء', 'GHADA': 'غادة', 'ABEER': 'عبير', 'ASMAA': 'أسماء',
+      'ASMA': 'أسماء', 'LOBNA': 'لبنى', 'LUBNA': 'لبنى', 'MANAR': 'منار', 'MAYSA': 'ميساء',
+      'NAGWA': 'نجوى', 'NAGLAA': 'نجلاء', 'NIHAL': 'نهال', 'RADWA': 'ردوى', 'SAMIA': 'سامية',
+      'SUHA': 'سها', 'WAFAA': 'وفاء', 'WAFA': 'وفاء',
       // ألقاب / كنى شائعة
-      'ALBURHAN':'البرهان','AL-BURHAN':'البرهان','EL-BURHAN':'البرهان',
-      'ALAMIN':'الأمين','EL-AMIN':'الأمين','ELSAYED':'السيد','EL-SAYED':'السيد',
-      'ELSAID':'السعيد','EL-SAID':'السعيد','ELSHAFEI':'الشافعي','ELSHAMY':'الشامي',
-      'ELARABY':'العربي','ELARABIEH':'العربي',
+      'ALBURHAN': 'البرهان', 'AL-BURHAN': 'البرهان', 'EL-BURHAN': 'البرهان',
+      'ALAMIN': 'الأمين', 'EL-AMIN': 'الأمين', 'ELSAYED': 'السيد', 'EL-SAYED': 'السيد',
+      'ELSAID': 'السعيد', 'EL-SAID': 'السعيد', 'ELSHAFEI': 'الشافعي', 'ELSHAMY': 'الشامي',
+      'ELARABY': 'العربي', 'ELARABIEH': 'العربي',
       // أسماء إضافية شائعة في الجوازات
-      'MANSOUR':'منصور','MANSOURA':'منصورة','MOHSEN':'محسن','MOHSENA':'محسنة',
-      'HAMZA':'حمزة','HAMZAH':'حمزة','HUDA':'هدى','HOUDA':'هدى','SULEIMAN':'سليمان',
-      'SULAIMAN':'سليمان','SOLIMAN':'سليمان','BADR':'بدر','BADRA':'بدرة',
-      'MARWA':'مروة','MARWAH':'مروة','MERYAM':'مريم','MERI':'مريم',
-      'HATEM':'حاتم','HATIM':'حاتم','ADNAN':'عدنان','AYMAN':'أيمن',
-      'BILAL':'بلال','BILEL':'بلال','FAISAL':'فيصل','FAYSAL':'فيصل',
-      'HAYTHAM':'هيثم','HAITHAM':'هيثم','HAZEM':'حازم','HAZIM':'حازم',
-      'KAMAL':'كمال','KEMAL':'كمال','LOTFI':'لطفي','LUTFI':'لطفي',
-      'MOUNIR':'منير','MUNIR':'منير','OUSSAMA':'أسامة','OSSAMA':'أسامة',
-      'RACHID':'رشيد','RASHID':'رشيد','REDA':'رضا','RIDHA':'رضا',
-      'RIDA':'رضا','SABRI':'صبري','SAMEH':'سامح','SAMER':'سامر',
-      'SOHAIR':'سهير','SOHEIR':'سهير','SUHAIR':'سهير','TAHIR':'طاهر',
-      'TAHER':'طاهر','WAHID':'وحيد','WAHEED':'وحيد','WAIL':'وائل',
-      'WISSAM':'وسام','YEHIA':'يحيى','YAHIA':'يحيى','YAHYA':'يحيى',
-      'ZINEB':'زينب','ZEINAB':'زينب','ZAYNAB':'زينب','ZAKI':'زكي',
-      'ZAKARIA':'زكريا','ZECHARIAH':'زكريا','LAYLA':'ليلى','LEILA':'ليلى',
-      'LINA':'لينا','LEENA':'لينا','LAILA':'ليلى','LOUBNA':'لبنى',
-      'MAHA':'مها','MAHER':'ماهر','MANAR':'منار','MAYADA':'ميادة',
-      'MONTASER':'منتصر','MUNTASIR':'منتصر','NADA':'ندى','NAHED':'ناهد',
-      'NAHLA':'نهلة','NAIMAH':'نعيمة','NIVIN':'نيفين','NIVEEN':'نيفين',
-      'NADA':'ندى','NADIA':'نادية',      'SIHAM':'سهام','SOHILA':'سهيلة',
-      'SUDANESE':'سوداني','SUDANI':'سوداني',
+      'MANSOUR': 'منصور', 'MANSOURA': 'منصورة', 'MOHSEN': 'محسن', 'MOHSENA': 'محسنة',
+      'HAMZA': 'حمزة', 'HAMZAH': 'حمزة', 'HUDA': 'هدى', 'HOUDA': 'هدى', 'SULEIMAN': 'سليمان',
+      'SULAIMAN': 'سليمان', 'SOLIMAN': 'سليمان', 'BADR': 'بدر', 'BADRA': 'بدرة',
+      'MARWA': 'مروة', 'MARWAH': 'مروة', 'MERYAM': 'مريم', 'MERI': 'مريم',
+      'HATEM': 'حاتم', 'HATIM': 'حاتم', 'ADNAN': 'عدنان', 'AYMAN': 'أيمن',
+      'BILAL': 'بلال', 'BILEL': 'بلال', 'FAISAL': 'فيصل', 'FAYSAL': 'فيصل',
+      'HAYTHAM': 'هيثم', 'HAITHAM': 'هيثم', 'HAZEM': 'حازم', 'HAZIM': 'حازم',
+      'KAMAL': 'كمال', 'KEMAL': 'كمال', 'LOTFI': 'لطفي', 'LUTFI': 'لطفي',
+      'MOUNIR': 'منير', 'MUNIR': 'منير', 'OUSSAMA': 'أسامة', 'OSSAMA': 'أسامة',
+      'RACHID': 'رشيد', 'RASHID': 'رشيد', 'REDA': 'رضا', 'RIDHA': 'رضا',
+      'RIDA': 'رضا', 'SABRI': 'صبري', 'SAMEH': 'سامح', 'SAMER': 'سامر',
+      'SOHAIR': 'سهير', 'SOHEIR': 'سهير', 'SUHAIR': 'سهير', 'TAHIR': 'طاهر',
+      'TAHER': 'طاهر', 'WAHID': 'وحيد', 'WAHEED': 'وحيد', 'WAIL': 'وائل',
+      'WISSAM': 'وسام', 'YEHIA': 'يحيى', 'YAHIA': 'يحيى', 'YAHYA': 'يحيى',
+      'ZINEB': 'زينب', 'ZEINAB': 'زينب', 'ZAYNAB': 'زينب', 'ZAKI': 'زكي',
+      'ZAKARIA': 'زكريا', 'ZECHARIAH': 'زكريا', 'LAYLA': 'ليلى', 'LEILA': 'ليلى',
+      'LINA': 'لينا', 'LEENA': 'لينا', 'LAILA': 'ليلى', 'LOUBNA': 'لبنى',
+      'MAHA': 'مها', 'MAHER': 'ماهر', 'MANAR': 'منار', 'MAYADA': 'ميادة',
+      'MONTASER': 'منتصر', 'MUNTASIR': 'منتصر', 'NADA': 'ندى', 'NAHED': 'ناهد',
+      'NAHLA': 'نهلة', 'NAIMAH': 'نعيمة', 'NIVIN': 'نيفين', 'NIVEEN': 'نيفين',
+      'NADA': 'ندى', 'NADIA': 'نادية', 'SIHAM': 'سهام', 'SOHILA': 'سهيلة',
+      'SUDANESE': 'سوداني', 'SUDANI': 'سوداني',
       // أسماء إضافية من الجواز المصري (Case 2)
-      'RAAFAT':'رأفت','RAFAT':'رأفت','FATH':'فتح','HASSANIN':'حسانين','HASSANEIN':'حسانين',
-      'MOHAMED':'محمد','MOHAMMAD':'محمد','MOHAMAD':'محمد','MUHAMMAD':'محمد',
+      'RAAFAT': 'رأفت', 'RAFAT': 'رأفت', 'FATH': 'فتح', 'HASSANIN': 'حسانين', 'HASSANEIN': 'حسانين',
+      'MOHAMED': 'محمد', 'MOHAMMAD': 'محمد', 'MOHAMAD': 'محمد', 'MUHAMMAD': 'محمد',
     };
 
     // ─── محرك Transliteration حرف بحرف (لأسماء الجوازات اللاتينية) ────────────
     function transliterateChars(w) {
       if (!w) return '';
-      const VOWELS = new Set(['A','E','I','O','U']);
+      const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']);
 
       // التحقق من نهايات خاصة أولاً
       let suffix = '';
-      if (/AH$|EH$/i.test(w)) { suffix = 'ة'; w = w.slice(0,-2); }
-      else if (/[^AEIOU]A$/i.test(w) && w.length > 2) { suffix = 'ى'; w = w.slice(0,-1); }
+      if (/AH$|EH$/i.test(w)) { suffix = 'ة'; w = w.slice(0, -2); }
+      else if (/[^AEIOU]A$/i.test(w) && w.length > 2) { suffix = 'ى'; w = w.slice(0, -1); }
 
       // دمج الحروف المتكررة (HASSAN→HASAN, FATIMA→FATIMA)
       w = w.replace(/([B-DF-HJ-NP-TV-Z])\1+/gi, '$1');
 
       // خريطة ثنائية الحروف (مرتبة: الأطول أولاً)
       const DI = [
-        ['SH','ش'],['KH','خ'],['GH','غ'],['DH','ذ'],['TH','ث'],
-        ['AA','ا'],['EE','ي'],['OO','و'],['OW','و'],
-        ['AW','ا'],['AY','اي'],['AI','اي'],
+        ['SH', 'ش'], ['KH', 'خ'], ['GH', 'غ'], ['DH', 'ذ'], ['TH', 'ث'],
+        ['AA', 'ا'], ['EE', 'ي'], ['OO', 'و'], ['OW', 'و'],
+        ['AW', 'ا'], ['AY', 'اي'], ['AI', 'اي'],
       ];
       // خريطة الحرف الواحد
       const SI = {
-        A:'ا',B:'ب',C:'ك',D:'د',E:'',F:'ف',G:'ج',H:'ح',I:'ي',J:'ج',
-        K:'ك',L:'ل',M:'م',N:'ن',O:'و',P:'ب',Q:'ق',R:'ر',S:'س',T:'ت',
-        U:'و',V:'ف',W:'و',X:'كس',Y:'ي',Z:'ز',
+        A: 'ا', B: 'ب', C: 'ك', D: 'د', E: '', F: 'ف', G: 'ج', H: 'ح', I: 'ي', J: 'ج',
+        K: 'ك', L: 'ل', M: 'م', N: 'ن', O: 'و', P: 'ب', Q: 'ق', R: 'ر', S: 'س', T: 'ت',
+        U: 'و', V: 'ف', W: 'و', X: 'كس', Y: 'ي', Z: 'ز',
       };
 
       let res = ''; let i = 0; const L = w.length;
       // معالجة الحرف الأول: لو حرف علة → أ/إ
       if (i < L && VOWELS.has(w[i].toUpperCase())) {
-        res += (['I','E'].includes(w[i].toUpperCase())) ? 'إ' : 'أ';
+        res += (['I', 'E'].includes(w[i].toUpperCase())) ? 'إ' : 'أ';
         i++;
       }
 
@@ -1790,10 +1838,10 @@
           }
         }
         if (!found) {
-          const isLast   = (i === L - 1);
-          const isVowel  = VOWELS.has(ch);
-          const prevCons = i > 0 && !VOWELS.has(w[i-1].toUpperCase());
-          const nextCons = (i+1 < L) && !VOWELS.has(w[i+1].toUpperCase());
+          const isLast = (i === L - 1);
+          const isVowel = VOWELS.has(ch);
+          const prevCons = i > 0 && !VOWELS.has(w[i - 1].toUpperCase());
+          const nextCons = (i + 1 < L) && !VOWELS.has(w[i + 1].toUpperCase());
           if (isVowel) {
             // E بين حرفين ساكنين غالباً صوت قصير في الجوازات العربية → احذفه
             // بقية حروف العلة A/I/O/U → اكتبها دايماً
@@ -1821,10 +1869,10 @@
 
       // 2) تجريد البادئات الشائعة في أسماء الجوازات العربية
       const PREFIXES = [
-        ['ABDEL','عبد ال'],['ABDUL','عبد ال'],['ABDU','عبد ال'],
-        ['ABD','عبد '],['ABU','أبو '],['IBN','ابن '],['BINT','بنت '],
-        ['UMM','أم '],['ELDEEN','الدين'],['ALDIN','الدين'],
-        ['EL','ال'],['AL','ال'],
+        ['ABDEL', 'عبد ال'], ['ABDUL', 'عبد ال'], ['ABDU', 'عبد ال'],
+        ['ABD', 'عبد '], ['ABU', 'أبو '], ['IBN', 'ابن '], ['BINT', 'بنت '],
+        ['UMM', 'أم '], ['ELDEEN', 'الدين'], ['ALDIN', 'الدين'],
+        ['EL', 'ال'], ['AL', 'ال'],
       ];
       for (const [pfx, arPfx] of PREFIXES) {
         if (up.startsWith(pfx) && up.length > pfx.length + 1) {
@@ -1890,7 +1938,8 @@
 
     function getGPSLocation(event) {
       const link = event.target;
-      
+
+      // ✅ تعديل: تجاهل الخطأ وفتح الخريطة
       // التحقق من البيئة الآمنة (Geolocation requires HTTPS or localhost)
       if (!window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
         showToast('⚠️ ميزة الموقع تتطلب اتصالاً آمناً (HTTPS) أو استخدام جهاز الكمبيوتر مباشرة', 'error');
@@ -1926,7 +1975,7 @@
         if (err.code === 1) errMsg = '❌ يرجى السماح بالوصول للموقع من إعدادات المتصفح';
         else if (err.code === 2) errMsg = '❌ موقعك غير متاح حالياً';
         else if (err.code === 3) errMsg = '❌ استغرق طلب الموقع وقتاً طويلاً';
-        
+
         showToast(errMsg, 'error');
         link.textContent = '📍 موقعي';
         link.style.pointerEvents = 'auto';
@@ -1935,42 +1984,42 @@
 
     // ─── قائمة ISO احتياطية (تُستخدم لو Odoo غير متاح) ─────────────────────────
     const ISO_FALLBACK_COUNTRIES = [
-      {id:'EG',name:'مصر',code:'EG'},{id:'SD',name:'السودان',code:'SD'},
-      {id:'SA',name:'المملكة العربية السعودية',code:'SA'},{id:'AE',name:'الإمارات العربية المتحدة',code:'AE'},
-      {id:'JO',name:'الأردن',code:'JO'},{id:'LB',name:'لبنان',code:'LB'},
-      {id:'SY',name:'سوريا',code:'SY'},{id:'IQ',name:'العراق',code:'IQ'},
-      {id:'YE',name:'اليمن',code:'YE'},{id:'LY',name:'ليبيا',code:'LY'},
-      {id:'TN',name:'تونس',code:'TN'},{id:'MA',name:'المغرب',code:'MA'},
-      {id:'DZ',name:'الجزائر',code:'DZ'},{id:'MR',name:'موريتانيا',code:'MR'},
-      {id:'SO',name:'الصومال',code:'SO'},{id:'KW',name:'الكويت',code:'KW'},
-      {id:'QA',name:'قطر',code:'QA'},{id:'BH',name:'البحرين',code:'BH'},
-      {id:'OM',name:'عُمان',code:'OM'},{id:'PS',name:'فلسطين',code:'PS'},
-      {id:'ER',name:'إريتريا',code:'ER'},{id:'ET',name:'إثيوبيا',code:'ET'},
-      {id:'NG',name:'نيجيريا',code:'NG'},{id:'GH',name:'غانا',code:'GH'},
-      {id:'CM',name:'الكاميرون',code:'CM'},{id:'SN',name:'السنغال',code:'SN'},
-      {id:'ML',name:'مالي',code:'ML'},{id:'NE',name:'النيجر',code:'NE'},
-      {id:'TD',name:'تشاد',code:'TD'},{id:'CF',name:'جمهورية أفريقيا الوسطى',code:'CF'},
-      {id:'CD',name:'الكونغو الديمقراطية',code:'CD'},{id:'KE',name:'كينيا',code:'KE'},
-      {id:'UG',name:'أوغندا',code:'UG'},{id:'TZ',name:'تنزانيا',code:'TZ'},
-      {id:'RW',name:'رواندا',code:'RW'},{id:'BI',name:'بوروندي',code:'BI'},
-      {id:'DJ',name:'جيبوتي',code:'DJ'},{id:'PK',name:'باكستان',code:'PK'},
-      {id:'IN',name:'الهند',code:'IN'},{id:'BD',name:'بنغلاديش',code:'BD'},
-      {id:'PH',name:'الفلبين',code:'PH'},{id:'ID',name:'إندونيسيا',code:'ID'},
-      {id:'MY',name:'ماليزيا',code:'MY'},{id:'TR',name:'تركيا',code:'TR'},
-      {id:'IR',name:'إيران',code:'IR'},{id:'AF',name:'أفغانستان',code:'AF'},
-      {id:'CN',name:'الصين',code:'CN'},{id:'US',name:'الولايات المتحدة',code:'US'},
-      {id:'GB',name:'المملكة المتحدة',code:'GB'},{id:'FR',name:'فرنسا',code:'FR'},
-      {id:'DE',name:'ألمانيا',code:'DE'},{id:'IT',name:'إيطاليا',code:'IT'},
-      {id:'RU',name:'روسيا',code:'RU'},{id:'NG',name:'نيجيريا',code:'NG'},
-      {id:'ZA',name:'جنوب أفريقيا',code:'ZA'},{id:'IL',name:'إسرائيل / وثيقة سفر',code:'IL'},
-      {id:'ISR',name:'إسرائيل (ISR)',code:'IL'},{id:'UA',name:'أوكرانيا',code:'UA'},
+      { id: 'EG', name: 'مصر', code: 'EG' }, { id: 'SD', name: 'السودان', code: 'SD' },
+      { id: 'SA', name: 'المملكة العربية السعودية', code: 'SA' }, { id: 'AE', name: 'الإمارات العربية المتحدة', code: 'AE' },
+      { id: 'JO', name: 'الأردن', code: 'JO' }, { id: 'LB', name: 'لبنان', code: 'LB' },
+      { id: 'SY', name: 'سوريا', code: 'SY' }, { id: 'IQ', name: 'العراق', code: 'IQ' },
+      { id: 'YE', name: 'اليمن', code: 'YE' }, { id: 'LY', name: 'ليبيا', code: 'LY' },
+      { id: 'TN', name: 'تونس', code: 'TN' }, { id: 'MA', name: 'المغرب', code: 'MA' },
+      { id: 'DZ', name: 'الجزائر', code: 'DZ' }, { id: 'MR', name: 'موريتانيا', code: 'MR' },
+      { id: 'SO', name: 'الصومال', code: 'SO' }, { id: 'KW', name: 'الكويت', code: 'KW' },
+      { id: 'QA', name: 'قطر', code: 'QA' }, { id: 'BH', name: 'البحرين', code: 'BH' },
+      { id: 'OM', name: 'عُمان', code: 'OM' }, { id: 'PS', name: 'فلسطين', code: 'PS' },
+      { id: 'ER', name: 'إريتريا', code: 'ER' }, { id: 'ET', name: 'إثيوبيا', code: 'ET' },
+      { id: 'NG', name: 'نيجيريا', code: 'NG' }, { id: 'GH', name: 'غانا', code: 'GH' },
+      { id: 'CM', name: 'الكاميرون', code: 'CM' }, { id: 'SN', name: 'السنغال', code: 'SN' },
+      { id: 'ML', name: 'مالي', code: 'ML' }, { id: 'NE', name: 'النيجر', code: 'NE' },
+      { id: 'TD', name: 'تشاد', code: 'TD' }, { id: 'CF', name: 'جمهورية أفريقيا الوسطى', code: 'CF' },
+      { id: 'CD', name: 'الكونغو الديمقراطية', code: 'CD' }, { id: 'KE', name: 'كينيا', code: 'KE' },
+      { id: 'UG', name: 'أوغندا', code: 'UG' }, { id: 'TZ', name: 'تنزانيا', code: 'TZ' },
+      { id: 'RW', name: 'رواندا', code: 'RW' }, { id: 'BI', name: 'بوروندي', code: 'BI' },
+      { id: 'DJ', name: 'جيبوتي', code: 'DJ' }, { id: 'PK', name: 'باكستان', code: 'PK' },
+      { id: 'IN', name: 'الهند', code: 'IN' }, { id: 'BD', name: 'بنغلاديش', code: 'BD' },
+      { id: 'PH', name: 'الفلبين', code: 'PH' }, { id: 'ID', name: 'إندونيسيا', code: 'ID' },
+      { id: 'MY', name: 'ماليزيا', code: 'MY' }, { id: 'TR', name: 'تركيا', code: 'TR' },
+      { id: 'IR', name: 'إيران', code: 'IR' }, { id: 'AF', name: 'أفغانستان', code: 'AF' },
+      { id: 'CN', name: 'الصين', code: 'CN' }, { id: 'US', name: 'الولايات المتحدة', code: 'US' },
+      { id: 'GB', name: 'المملكة المتحدة', code: 'GB' }, { id: 'FR', name: 'فرنسا', code: 'FR' },
+      { id: 'DE', name: 'ألمانيا', code: 'DE' }, { id: 'IT', name: 'إيطاليا', code: 'IT' },
+      { id: 'RU', name: 'روسيا', code: 'RU' }, { id: 'NG', name: 'نيجيريا', code: 'NG' },
+      { id: 'ZA', name: 'جنوب أفريقيا', code: 'ZA' }, { id: 'IL', name: 'إسرائيل / وثيقة سفر', code: 'IL' },
+      { id: 'ISR', name: 'إسرائيل (ISR)', code: 'IL' }, { id: 'UA', name: 'أوكرانيا', code: 'UA' },
     ];
 
     function populateNationalityFallback() {
       const sel = document.getElementById('f-nationality');
       sel.innerHTML = '<option value="">— اختر الجنسية — (يدوي) —</option>';
       ISO_FALLBACK_COUNTRIES
-        .sort((a,b) => a.name.localeCompare(b.name, 'ar'))
+        .sort((a, b) => a.name.localeCompare(b.name, 'ar'))
         .forEach(c => {
           const opt = document.createElement('option');
           opt.value = c.id;
@@ -1980,7 +2029,7 @@
         });
       applyNationalityIfExtracted();
     }
-    
+
     function applyNationalityIfExtracted() {
       if (typeof extractedData !== 'undefined' && extractedData && extractedData.nationality_code2) {
         applyNationalityCode(
@@ -2006,7 +2055,7 @@
         if (data.success && data.countries && data.countries.length > 0) {
           sel.innerHTML = '<option value="">— اختر الجنسية —</option>';
           data.countries
-            .sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ar'))
+            .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'))
             .forEach(c => {
               const opt = document.createElement('option');
               opt.value = c.id;
