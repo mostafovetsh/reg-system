@@ -452,12 +452,14 @@
     </div>
 
     <!-- Dashboard Section -->
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h2>الطلاب المسجلون حديثاً</h2>
-      <button class="refresh-btn" onclick="loadNewStudents()">🔄 تحديث</button>
-    </div>
-    <div id="studentList" class="student-list">
-      <div style="padding: 40px; color: var(--text-muted)">جاري التحميل...</div>
+    <div id="dashboardSection">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>الطلاب المسجلون حديثاً</h2>
+        <button class="refresh-btn" onclick="loadNewStudents()">🔄 تحديث</button>
+      </div>
+      <div id="studentList" class="student-list">
+        <div style="padding: 40px; color: var(--text-muted)">جاري التحميل...</div>
+      </div>
     </div>
   </div>
 
@@ -666,17 +668,17 @@
       const listEl = document.getElementById('studentList');
       if (!students || students.length === 0) { listEl.innerHTML = '<div style="padding:40px">لا يوجد طلاب</div>'; return; }
       listEl.innerHTML = students.map(s => {
-        const p = s['رقم الجواز'];
+        const p = s.passport_number;
         const isSynced = s.odoo_student_code && s.odoo_student_code !== true && String(s.odoo_student_code).toLowerCase() !== 'true';
         return `
         <div class="student-row">
-          <div class="row-name">${s['الإسم بالعربي'] || s['الأسماء'] || 'بدون اسم'}</div>
-          <div class="row-meta">${s['رقم الجواز']}</div>
+          <div class="row-name">${s.name_arabic || (s.given_names + ' ' + s.surname).trim() || 'بدون اسم'}</div>
+          <div class="row-meta">${s.passport_number}</div>
           <div><div class="status-badge ${isSynced ? 'status-synced' : 'status-not-synced'}">${isSynced ? 'تم الربط (' + s.odoo_student_code + ')' : 'طالب جديد'}</div></div>
           <div style="display:flex; gap:8px; justify-content: flex-end;">
             <button id="callBtn-${p}" class="btn-row-action btn-call" 
                     style="background:var(--success); width:90px; height:36px; color:#fff; border-radius:8px; border:none; font-weight:700; cursor:pointer;"
-                    onclick="callStudent('${p}')">${s['رقم_الانتظار'] || 'نداء'}</button>
+                    onclick="callStudent('${p}')">${s.queue_number || 'نداء'}</button>
             <button class="btn-row-action btn-review" 
                     style="background:var(--success); opacity:0.9; width:90px; height:36px; color:#fff; border-radius:8px; border:none; font-weight:700; cursor:pointer;"
                     onclick="viewStudent('${p}')">مراجعة</button>
@@ -734,7 +736,7 @@
     }
 
     function fillForm(s) {
-      const name = (s['الأسماء'] || '') + ' ' + (s['اللقب'] || '');
+      const name = (s.given_names || '') + ' ' + (s.surname || '');
       const fmt = (d) => {
         if (!d) return '';
         if (d.includes('/') || (d.includes('-') && d.split('-')[0].length < 4)) {
@@ -743,31 +745,31 @@
         }
         return d;
       };
-      const dob = fmt(s['تاريخ الميلاد']);
-      const exp = fmt(s['تاريخ انتهاء الجواز']);
+      const dob = fmt(s.birth_date);
+      const exp = fmt(s.expiry_date);
 
-      document.getElementById('r-fullname').value = name;
-      document.getElementById('r-passport').value = s['رقم الجواز'] || '';
-      document.getElementById('r-nationality').value = s['الجنسية'] || '';
+      document.getElementById('r-fullname').value = name.trim();
+      document.getElementById('r-passport').value = s.passport_number || '';
+      document.getElementById('r-nationality').value = s.nationality || '';
       document.getElementById('r-dob').value = dob;
       document.getElementById('r-expiry').value = exp;
-      document.getElementById('r-phone').value = s['رقم التليفون'] || '';
-      document.getElementById('r-name-arabic').value = s['الإسم بالعربي'] || '';
-      document.getElementById('r-address').value = s['العنوان'] || '';
-      document.getElementById('r-passport-img').src = s['صورة الجواز'] ? '/uploads/' + s['صورة الجواز'] : '';
-      document.getElementById('r-id-img').src = s['صورة الإقامة'] ? '/uploads/' + s['صورة الإقامة'] : '';
+      document.getElementById('r-phone').value = s.phone || '';
+      document.getElementById('r-name-arabic').value = s.name_arabic || '';
+      document.getElementById('r-address').value = s.address || '';
+      document.getElementById('r-passport-img').src = s.photo_passport ? '/uploads/' + s.photo_passport : '';
+      document.getElementById('r-id-img').src = s.photo_id ? '/uploads/' + s.photo_id : '';
 
-      document.getElementById('e-fullname').value = name;
-      document.getElementById('e-passport').value = s['رقم الجواز'] || '';
-      document.getElementById('e-nat').value = s['الجنسية'] || '';
+      document.getElementById('e-fullname').value = name.trim();
+      document.getElementById('e-passport').value = s.passport_number || '';
+      document.getElementById('e-nat').value = s.nationality || '';
       document.getElementById('e-dob').value = dob;
       document.getElementById('e-exp').value = exp;
-      document.getElementById('e-phone').value = s['رقم التليفون'] || '';
-      document.getElementById('e-name-arabic').value = s['الإسم بالعربي'] || '';
-      document.getElementById('e-address').value = s['العنوان'] || '';
-      document.getElementById('img-passport').src = s['صورة الجواز'] ? '/uploads/' + s['صورة الجواز'] : '';
-      document.getElementById('img-id').src = s['صورة الإقامة'] ? '/uploads/' + s['صورة الإقامة'] : '';
-      document.getElementById('d-date').textContent = 'تاريخ التسجيل: ' + (s['تاريخ التسجيل'] || '');
+      document.getElementById('e-phone').value = s.phone || '';
+      document.getElementById('e-name-arabic').value = s.name_arabic || '';
+      document.getElementById('e-address').value = s.address || '';
+      document.getElementById('img-passport').src = s.photo_passport ? '/uploads/' + s.photo_passport : '';
+      document.getElementById('img-id').src = s.photo_id ? '/uploads/' + s.photo_id : '';
+      document.getElementById('d-date').textContent = 'تاريخ التسجيل: ' + (s.created_at || '');
       document.getElementById('d-code').textContent = (s.odoo_student_code && s.odoo_student_code !== true) ? s.odoo_student_code : 'STU-NEW';
     }
 
@@ -823,7 +825,10 @@
     }
 
     function hideAll() {
-      ['dashboardSection', 'searchSection', 'detailView', 'reviewView'].forEach(id => document.getElementById(id).style.display = 'none');
+      ['dashboardSection', 'searchSection', 'detailView', 'reviewView'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
     }
     function showSearchSection() { hideAll(); document.getElementById('searchSection').style.display = 'block'; }
     function searchStudent() { const c = document.getElementById('searchInput').value; if (c) viewStudent(c); }

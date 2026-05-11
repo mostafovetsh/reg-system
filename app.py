@@ -498,10 +498,10 @@ def call_student_db(passport: str) -> dict:
         name = student['name_arabic'] or student['given_names'] or '---'
         queue_num = student['queue_number'] or '---'
         
-        # إضافة للمناداة
+        # إزالة أي سجل سابق لهذا الطالب أو لهذا الرقم لضمان عدم حدوث خطأ التكرار
         conn.execute(
-            "DELETE FROM waiting_list WHERE student_id = ?",
-            (student['id'],)
+            "DELETE FROM waiting_list WHERE student_id = ? OR queue_number = ?",
+            (student['id'], queue_num)
         )
         conn.execute(
             "INSERT INTO waiting_list (student_id, queue_number, name) VALUES (?, ?, ?)",
