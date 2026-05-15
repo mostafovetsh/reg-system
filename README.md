@@ -6,7 +6,7 @@
 passport_system/
 ├── app.py                 ← Flask Backend
 ├── requirements.txt       ← المكتبات المطلوبة
-├── students_data.xlsx     ← (ينشأ تلقائياً عند أول تسجيل)
+├── fajr_students.db    ← sql-lite
 ├── uploads/               ← (ينشأ تلقائياً — صور الجوازات المرفوعة)
 └── static/
     └── index.html         ← صفحة الويب
@@ -55,5 +55,4 @@ http://localhost:5000
 |--------|-----|---------|
 | GET | `/` | صفحة الويب |
 | POST | `/api/extract-passport` | استخراج بيانات الجواز |
-| POST | `/api/extract-id` | استخراج بيانات صورة الإقامة |
 | POST | `/api/register` | حفظ الطالب + إنشاء الكود |
