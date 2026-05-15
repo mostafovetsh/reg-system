@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0e1a;
-            --surface: #111827;
-            --border: #1e2d45;
-            --accent: #00c8ff;
-            --accent2: #7c3aed;
-            --text: #e2e8f0;
-            --success: #10b981;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --border: #334155;
+            --accent: #0284c7;
+            --accent2: #f97316;
+            --text: #0f172a;
+            --success: #059669;
         }
 
         * {
@@ -35,9 +36,9 @@
         .grid-bg {
             position: fixed;
             inset: 0;
-            background-image: linear-gradient(rgba(0, 200, 255, 0.03) 1px, transparent 1px), 
-                              linear-gradient(90deg, rgba(0, 200, 255, 0.03) 1px, transparent 1px);
-            background-size: 80px 80px;
+            background-image: linear-gradient(rgb(2 132 199 / 18%) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
             z-index: -1;
         }
 
@@ -45,14 +46,14 @@
             padding: 40px;
             text-align: center;
             border-bottom: 1px solid var(--border);
-            background: rgba(17, 24, 39, 0.8);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
         }
 
         header h1 {
             font-size: 42px;
             font-weight: 900;
-            background: linear-gradient(135deg, #fff, var(--accent));
+            background: linear-gradient(135deg, var(--text), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
@@ -74,8 +75,7 @@
         .main-logo {
             width: 150px;
             height: auto;
-            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) 
-                    drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
+            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
         }
 
         main {
@@ -103,7 +103,7 @@
             animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
         }
 
         .student-card::before {
@@ -123,7 +123,7 @@
         .student-name {
             font-size: 24px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text);
             margin-bottom: 4px;
         }
 
@@ -135,12 +135,19 @@
             font-size: 32px;
             font-weight: 900;
             font-family: 'monospace';
-            box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(30px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .empty-msg {
@@ -157,8 +164,8 @@
         .top-card {
             border-color: var(--accent);
             transform: scale(1.05);
-            background: linear-gradient(rgba(0, 200, 255, 0.05), transparent);
-            box-shadow: 0 20px 60px rgba(0, 200, 255, 0.15);
+            background: linear-gradient(rgba(14, 165, 233, 0.05), transparent);
+            box-shadow: 0 20px 60px rgba(14, 165, 233, 0.1);
         }
 
         .top-card .queue-box {
@@ -166,16 +173,27 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.4); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(0, 200, 255, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 200, 255, 0); }
-        }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.4);
+            }
 
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 15px rgba(0, 200, 255, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(0, 200, 255, 0);
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="grid-bg"></div>
-    
+
     <header>
         <div class="logo-container">
             <img src="/static/logo.png?v=3" alt="مركز فجر" class="main-logo">
@@ -184,8 +202,10 @@
         <h1>قائمة الانتظار</h1>
     </header>
 
-    <main style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh;">
-        <div id="waitingGrid" class="waiting-grid" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 40px;">
+    <main
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh;">
+        <div id="waitingGrid" class="waiting-grid"
+            style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 40px;">
             <div class="empty-msg">في انتظار البدء...</div>
         </div>
     </main>
@@ -197,7 +217,7 @@
             try {
                 const res = await fetch('/api/waiting-list');
                 const data = await res.json();
-                
+
                 if (data.success) {
                     renderList(data.students);
                 }
@@ -217,13 +237,13 @@
             // تحقق إذا كان هناك تغيير في البيانات
             const currentNumbers = students.map(s => s.queue_number).join(',');
             if (currentNumbers === lastQueueNumbers.join(',')) return;
-            
+
             lastQueueNumbers = students.map(s => s.queue_number);
-            
+
             // عرض الطالب الحالي (الأول في القائمة) بشكل كبير جداً في المنتصف
             const current = students[0];
             playNotification(current.name, current.queue_number);
-            
+
             let html = `
                 <div class="student-card top-card" style="width: 100%; max-width: 800px; padding: 60px; flex-direction: column; text-align: center; gap: 30px;">
                     <div class="student-info">
@@ -254,11 +274,11 @@
 
         // تحديث كل ثانية واحدة لضمان السرعة
         setInterval(updateList, 1000);
-        
+
         // لمنع تشغيل الصوت بدون تفاعل، سنضيف زر تشغيل في البداية
         document.body.insertAdjacentHTML('afterbegin', `
-            <div id="audioOverlay" style="position:fixed; inset:0; background:rgba(10,14,26,0.9); z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px;">
-                <h2 style="color:#fff;">شاشة قائمة الانتظار جاهزة</h2>
+            <div id="audioOverlay" style="position:fixed; inset:0; background:rgba(248,251,255,0.95); z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px;">
+                <h2 style="color:var(--text);">شاشة قائمة الانتظار جاهزة</h2>
                 <button onclick="startApp()" style="padding:15px 40px; background:var(--accent); border:none; border-radius:12px; color:#fff; font-weight:700; cursor:pointer; font-size:20px;">تفعيل الصوت والعرض</button>
             </div>
         `);
@@ -273,7 +293,7 @@
                 // 1. صوت التنبيه (Ding)
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioContext.state === 'suspended') return;
-                
+
                 const osc = audioContext.createOscillator();
                 const gain = audioContext.createGain();
                 osc.type = 'sine';
@@ -301,4 +321,5 @@
         }
     </script>
 </body>
+
 </html>

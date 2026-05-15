@@ -13,18 +13,18 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
-      --bg: #0a0e1a;
-      --surface: #111827;
-      --surface2: #1a2234;
-      --border: #1e2d45;
-      --accent: #00c8ff;
-      --accent2: #7c3aed;
+      --bg: rgba(247, 247, 247, 0.12);
+      --surface: #ffffff;
+      --surface2: #e2e8f0;
+      --border: #334155;
+      --accent: #0284c7;
+      --accent2: #f97316;
       --gold: #f59e0b;
-      --success: #10b981;
-      --error: #ef4444;
-      --text: #e2e8f0;
-      --text-muted: #64748b;
-      --text-dim: #94a3b8;
+      --success: #059669;
+      --error: #dc2626;
+      --text: #0f172a;
+      --text-muted: #1e293b;
+      --text-dim: #334155;
     }
 
     * {
@@ -48,8 +48,8 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0, 200, 255, 0.06) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124, 58, 237, 0.06) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(2, 132, 199, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(249, 115, 22, 0.12) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -58,9 +58,9 @@
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(0, 200, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 200, 255, 0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
+        linear-gradient(rgb(2 132 199 / 18%) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, rgba(2, 132, 199, 0.08) 1.5px, transparent 1.5px);
+      background-size: 50px 50px;
       pointer-events: none;
       z-index: 0;
     }
@@ -151,7 +151,7 @@
       font-size: clamp(28px, 5vw, 46px);
       font-weight: 900;
       line-height: 1.2;
-      background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+      background: linear-gradient(135deg, var(--text) 30%, var(--accent) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -190,9 +190,9 @@
       justify-content: center;
       font-weight: 700;
       font-size: 14px;
-      border: 2px solid var(--border);
+      border: 2px solid #94a3b8;
       background: var(--surface);
-      color: var(--text-muted);
+      color: #475569;
       transition: all 0.4s ease;
       position: relative;
       z-index: 1;
@@ -217,7 +217,8 @@
 
     .step-label {
       font-size: 11px;
-      color: var(--text-muted);
+      color: #64748b;
+      font-weight: 700;
       white-space: nowrap;
     }
 
@@ -230,9 +231,9 @@
     }
 
     .step-line {
-      height: 2px;
+      height: 3px;
       width: 80px;
-      background: var(--border);
+      background: #cbd5e1;
       margin-bottom: 18px;
       transition: background 0.4s;
     }
@@ -317,14 +318,14 @@
       right: 0;
       width: 200px;
       height: 200px;
-      background: radial-gradient(ellipse, rgba(0, 200, 255, 0.04), transparent 70%);
+      background: radial-gradient(ellipse, rgba(14, 165, 233, 0.06), transparent 70%);
       pointer-events: none;
     }
 
     .card-title {
       font-size: 18px;
       font-weight: 700;
-      color: #fff;
+      color: var(--text);
       margin-bottom: 24px;
       display: flex;
       align-items: center;
@@ -411,7 +412,7 @@
     .upload-title {
       font-weight: 700;
       font-size: 15px;
-      color: #fff;
+      color: var(--text);
       margin-bottom: 4px;
     }
 
@@ -446,10 +447,10 @@
     .btn-extract {
       width: 100%;
       padding: 16px;
-      background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(124, 58, 237, 0.15));
-      border: 1px solid rgba(0, 200, 255, 0.3);
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(245, 158, 11, 0.08));
+      border: 1px solid rgba(14, 165, 233, 0.2);
       border-radius: 14px;
-      color: var(--accent);
+      color: #0369a1;
       font-family: 'Cairo', sans-serif;
       font-size: 16px;
       font-weight: 700;
@@ -462,8 +463,8 @@
     }
 
     .btn-extract:hover:not(:disabled) {
-      background: linear-gradient(135deg, rgba(0, 200, 255, 0.25), rgba(124, 58, 237, 0.25));
-      box-shadow: 0 0 30px rgba(0, 200, 255, 0.2);
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(245, 158, 11, 0.12));
+      box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15);
       transform: translateY(-1px);
     }
 
@@ -538,13 +539,13 @@
     .field textarea:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.08);
-      background: rgba(0, 200, 255, 0.03);
+      background: #fdfdfd;
     }
 
     .field input.auto-filled {
       border-color: rgba(16, 185, 129, 0.4);
       background: rgba(16, 185, 129, 0.04);
-      color: #fff;
+      color: var(--text);
     }
 
     .field input.auto-filled.failed {
@@ -691,7 +692,7 @@
     .btn-submit {
       width: 100%;
       padding: 18px;
-      background: linear-gradient(135deg, #00c8ff, #7c3aed);
+      background: linear-gradient(135deg, #0ea5e9, #f59e0b);
       border: none;
       border-radius: 16px;
       color: #fff;
@@ -720,13 +721,16 @@
 
     .btn-submit:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0, 200, 255, 0.3);
+      box-shadow: 0 12px 30px rgba(14, 165, 233, 0.25);
     }
 
     .btn-submit:disabled {
-      opacity: 0.5;
+      background: #e2e8f0;
+      color: #94a3b8;
+      opacity: 0.8;
       cursor: not-allowed;
       transform: none;
+      border: 1px solid #cbd5e1;
     }
 
     /* Toast */
@@ -800,7 +804,7 @@
     .success-title {
       font-size: 26px;
       font-weight: 900;
-      color: #fff;
+      color: var(--text);
       margin-bottom: 10px;
     }
 
@@ -915,19 +919,19 @@
     .alert-info {
       background: rgba(0, 200, 255, 0.07);
       border: 1px solid rgba(0, 200, 255, 0.2);
-      color: #7dd3fc;
+      color: #0369a1;
     }
 
     .alert-error {
       background: rgba(239, 68, 68, 0.07);
       border: 1px solid rgba(239, 68, 68, 0.2);
-      color: #fca5a5;
+      color: #b91c1c;
     }
 
     .alert-success {
       background: rgba(16, 185, 129, 0.07);
       border: 1px solid rgba(16, 185, 129, 0.2);
-      color: #6ee7b7;
+      color: #047857;
     }
 
     /* Back button */
@@ -973,8 +977,8 @@
     }
 
     .tip-box .tip-text b {
-      color: #fff;
-      text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+      color: #92400e;
+      text-shadow: none;
     }
   </style>
 </head>
@@ -1065,7 +1069,8 @@
         style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 10px; background: rgba(0, 200, 255, 0.05); border-radius: 8px; border: 1px solid rgba(0, 200, 255, 0.1);">
         <input type="checkbox" id="policy-check" style="width: 20px; height: 20px; cursor: pointer;"
           onchange="document.getElementById('btn-agree').disabled = !this.checked">
-        <label for="policy-check" style="font-size: 14px; color: #fff; cursor: pointer; font-weight: 600;">أوافق على
+        <label for="policy-check" style="font-size: 14px; color: var(--text); cursor: pointer; font-weight: 700;">أوافق
+          على
           كافة الشروط والسياسات المذكورة أعلاه</label>
       </div>
 

@@ -7,14 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0e1a;
-            --surface: #111827;
-            --surface2: #1a2234;
-            --border: #1e2d45;
-            --accent: #00c8ff;
-            --accent2: #7c3aed;
-            --text: #e2e8f0;
-            --text-muted: #64748b;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface2: #e2e8f0;
+            --border: #334155;
+            --accent: #0284c7;
+            --accent2: #f97316;
+            --text: #0f172a;
+            --text-muted: #1e293b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,7 +32,7 @@
 
         .grid-bg {
             position: fixed; inset: 0;
-            background-image: linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
             background-size: 60px 60px;
             z-index: 0; pointer-events: none;
         }
@@ -46,7 +46,7 @@
             width: 90%;
             max-width: 600px;
             text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.05);
         }
 
         .icon-container {
@@ -83,7 +83,7 @@
             font-size: 32px;
             font-weight: 900;
             margin-bottom: 15px;
-            background: linear-gradient(135deg, #fff, var(--accent));
+            background: linear-gradient(135deg, var(--text), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;

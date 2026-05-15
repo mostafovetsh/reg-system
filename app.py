@@ -847,6 +847,42 @@ def extract_passport():
         return jsonify({"success": False, "error": str(e), "file_name": filename, "id_file_name": id_filename})
 
 
+@app.route('/debug-del', methods=['POST'])
+@admin_required
+def debug_del():
+    try:
+        log.info("🗑️ Delete student request received via debug route")
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"success": False, "error": "لم يتم استلام بيانات صالحة"}), 400
+            
+        passport = str(data.get('passport') or '').strip().upper()
+        if not passport:
+            return jsonify({"success": False, "error": "رقم الجواز مطلوب"}), 400
+        
+        with get_db() as conn:
+            # الحصول على معرف الطالب
+            student = conn.execute("SELECT id FROM students WHERE passport_number = ?", (passport,)).fetchone()
+            if not student:
+                return jsonify({"success": False, "error": "الطالب غير موجود في النظام المحلي"}), 404
+            
+            student_id = student['id']
+            
+            # حذف السجلات المرتبطة أولاً
+            conn.execute("DELETE FROM call_log WHERE student_id = ?", (student_id,))
+            conn.execute("DELETE FROM waiting_list WHERE student_id = ?", (student_id,))
+            
+            # حذف الطالب
+            conn.execute("DELETE FROM students WHERE id = ?", (student_id,))
+            
+        log.info(f"✅ Deleted student locally: {passport}")
+        return jsonify({"success": True, "message": "تم حذف الطالب بنجاح"})
+        
+    except Exception as e:
+        log.error(f"delete_student error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route('/api/register', methods=['POST'])
 def register():
     try:
@@ -1043,7 +1079,7 @@ if __name__ == '__main__':
     init_db()  # إنشاء قاعدة البيانات تلقائياً
     ip = get_local_ip()
     print(f"\n{'='*55}")
-    print(f"  Fajr Center - Registration System v5.0")
+    print(f"  Fajr Center - Registration System v5.0 [V.DELETE_READY]")
     print(f"  SQLite Database Edition")
     print(f"  http://{ip}:5000")
     print(f"  Admin: http://{ip}:5000/admin-login")

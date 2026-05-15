@@ -9,11 +9,8 @@ ENV/
 
 # Data and Uploads (Crucial to exclude sensitive student data)
 uploads/
-students_data.json
-waiting_list.json
+
 *.tmp
-check_fields.py
-setup_odoo_data.py
 
 # IDEs
 .vscode/
@@ -22,3 +19,8 @@ setup_odoo_data.py
 # OS
 Thumbs.db
 Desktop.ini
+
+*.db
+*.sqlite
+
+*.bat
