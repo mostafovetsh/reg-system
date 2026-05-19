@@ -1,0 +1,419 @@
+/*admin-html*/
+
+:root {
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --surface2: #e2e8f0;
+    --border: #334155;
+    --accent: #0284c7;
+    --accent2: #f97316;
+    --text: #0f172a;
+    --text-muted: #1e293b;
+    --success: #059669;
+    --error: #dc2626;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+.grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgb(2 132 199 / 18%) 1px, transparent 1px), linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.search-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.main-logo {
+    width: 120px;
+    height: auto;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+}
+
+.main-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Admin Grid (Dashboard Buttons) */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.admin-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 120px;
+    position: relative;
+}
+
+.admin-btn:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 20px rgba(14, 165, 233, 0.1);
+}
+
+.admin-btn.active {
+    background: linear-gradient(117deg, #0284c7, #84acb5);
+    border: none;
+    color: #fff;
+}
+
+.admin-btn.danger {
+    border-color: #879cb9;
+}
+
+.admin-btn.danger:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+.admin-btn.danger {
+    background: rgba(251,146,60,.3);
+}
+
+.admin-btn.danger:hover {
+    background: #99c4e0;
+}
+
+/* Student List / Rows */
+.student-list {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Row Layout Improvement */
+.student-row {
+    display: grid;
+    grid-template-columns: 200px 120px 1fr 290px;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    background: var(--surface2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    margin-bottom: 8px;
+}
+
+.student-row:hover {
+    border-color: var(--accent);
+    background: rgba(14, 165, 233, 0.03);
+}
+
+.row-name {
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.row-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+@media (max-width: 800px) {
+    .student-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .student-row>div:last-child {
+        justify-content: center !important;
+        flex-wrap: wrap;
+    }
+
+    .admin-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 20px 10px;
+    }
+}
+
+.status-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.status-not-synced {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    animation: pulseRed 2s infinite;
+}
+
+@keyframes pulseRed {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.status-synced {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-row-action {
+    width: 90px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    color: #000000;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #60a1ba;
+}
+
+.btn-call {
+    background: var(--success);
+}
+
+.btn-call.called {
+    background: var(--error) !important;
+}
+
+.btn-review {
+    background: var(--success);
+    opacity: 0.9;
+}
+
+.btn-print {
+    background: var(--success);
+    opacity: 0.8;
+}
+
+.btn-delete {
+    background: var(--error) !important;
+    opacity: 0.9;
+}
+
+.refresh-btn {
+    background: rgba(14, 165, 233, 0.05);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Certified Badge Stamp - Updated to Red & Larger */
+.certified-badge {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    border: 5px solid #ef4444;
+    color: #ef4444;
+    padding: 15px 30px;
+    transform: rotate(-10deg);
+    font-family: 'Cairo';
+    font-weight: 900;
+    font-size: 28px;
+    border-radius: 4px;
+    background: #fff;
+    z-index: 100;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 0 0 0 5px #fff;
+}
+
+/* Printable Application Form with Frame */
+.app-form {
+    display: none;
+    background: #fff;
+    color: #000;
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+    border: 10px solid #fff;
+    outline: 2px solid #000;
+}
+
+.app-inner-frame {
+    border: 1px solid #000;
+    padding: 25px;
+    position: relative;
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #000;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.meta-code {
+    font-family: 'Tajawal';
+    font-size: 18px;
+    font-weight: 700;
+    background: #f1f5f9;
+    padding: 8px 16px;
+    direction: ltr;
+}
+
+.data-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.data-item {
+    border-bottom: 1px dashed #cbd5e1;
+    padding-bottom: 10px;
+}
+
+.data-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: 'Cairo';
+    font-size: 16px;
+    font-weight: 700;
+    background: #f8fafc;
+    color: #0f172a;
+    outline: none;
+}
+
+.btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .app-form {
+        display: block !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        border: none;
+        outline: none;
+    }
+
+    .app-inner-frame {
+        border: 2px solid #000;
+    }
+
+    .print-images {
+        display: flex;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .print-photo {
+        width: 45%;
+        max-height: 300px;
+        object-fit: contain;
+        border: 1px solid #000;
+    }
+}

@@ -366,6 +366,12 @@ def add_student_db(data: dict) -> dict:
                 queue_num
             ))
             
+            # Update waiting_list with the real student_id
+            last_id_row = conn.execute("SELECT seq FROM sqlite_sequence WHERE name='students'").fetchone()
+            if last_id_row:
+                new_student_id = last_id_row[0]
+                conn.execute("UPDATE waiting_list SET student_id = ? WHERE queue_number = ?", (new_student_id, queue_num))
+            
             log.info(f"✅ Added student: {p_num}")
             return {"success": True, "student_code": p_num, "queue_number": queue_num}
     
@@ -808,6 +814,17 @@ def admin_logout():
     session.pop('admin_logged_in', None)
     return redirect('/admin-login')
 
+@app.route('/api/maintenance-status')
+def maintenance_status():
+    return jsonify({"success": True, "maintenance": MAINTENANCE_MODE})
+
+@app.route('/api/toggle-maintenance', methods=['POST'])
+@admin_required
+def toggle_maintenance():
+    global MAINTENANCE_MODE
+    MAINTENANCE_MODE = not MAINTENANCE_MODE
+    log.info(f"Maintenance mode set to: {MAINTENANCE_MODE}")
+    return jsonify({"success": True, "maintenance": MAINTENANCE_MODE})
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Flask Routes — API
@@ -862,15 +879,16 @@ def debug_del():
         
         with get_db() as conn:
             # الحصول على معرف الطالب
-            student = conn.execute("SELECT id FROM students WHERE passport_number = ?", (passport,)).fetchone()
+            student = conn.execute("SELECT id, queue_number FROM students WHERE passport_number = ?", (passport,)).fetchone()
             if not student:
                 return jsonify({"success": False, "error": "الطالب غير موجود في النظام المحلي"}), 404
             
             student_id = student['id']
+            queue_num = student['queue_number']
             
             # حذف السجلات المرتبطة أولاً
             conn.execute("DELETE FROM call_log WHERE student_id = ?", (student_id,))
-            conn.execute("DELETE FROM waiting_list WHERE student_id = ?", (student_id,))
+            conn.execute("DELETE FROM waiting_list WHERE student_id = ? OR queue_number = ?", (student_id, queue_num))
             
             # حذف الطالب
             conn.execute("DELETE FROM students WHERE id = ?", (student_id,))
@@ -997,10 +1015,13 @@ def print_application():
         
         if odoo_name:
             with get_db() as conn:
-                conn.execute(
-                    "UPDATE students SET odoo_student_code = ?, synced = 1 WHERE passport_number = ?",
-                    (str(odoo_name), student_code)
-                )
+                student_id = student['id']
+                queue_num = student.get('queue_number')
+                # حذف السجلات المرتبطة أولاً
+                conn.execute("DELETE FROM call_log WHERE student_id = ?", (student_id,))
+                conn.execute("DELETE FROM waiting_list WHERE student_id = ? OR queue_number = ?", (student_id, queue_num))
+                # حذف الطالب نهائياً من قاعدة البيانات بعد الطباعة
+                conn.execute("DELETE FROM students WHERE id = ?", (student_id,))
             
             return jsonify({
                 'success': True,
@@ -1035,12 +1056,6 @@ def get_odoo_data():
         return jsonify({'success': False, 'error': str(e)})
 
 
-@app.route('/api/toggle-maintenance', methods=['POST'])
-@admin_required
-def toggle_maintenance():
-    global MAINTENANCE_MODE
-    MAINTENANCE_MODE = not MAINTENANCE_MODE
-    return jsonify({'success': True, 'maintenance_mode': MAINTENANCE_MODE})
 
 
 @app.route('/api/qrcode')

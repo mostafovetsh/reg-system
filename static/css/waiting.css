@@ -1,0 +1,184 @@
+/*waiting*/
+
+
+   :root {
+       --bg: #f1f5f9;
+       --surface: #ffffff;
+       --border: #334155;
+       --accent: #0284c7;
+       --accent2: #f97316;
+       --text: #0f172a;
+       --success: #059669;
+   }
+
+   * {
+       margin: 0;
+       padding: 0;
+       box-sizing: border-box;
+   }
+
+   body {
+       font-family: 'Cairo', sans-serif;
+       background: var(--bg);
+       color: var(--text);
+       min-height: 100vh;
+       overflow: hidden;
+       display: flex;
+       flex-direction: column;
+   }
+
+   .grid-bg {
+       position: fixed;
+       inset: 0;
+       background-image: linear-gradient(rgb(2 132 199 / 18%) 1px, transparent 1px),
+           linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+       background-size: 50px 50px;
+       z-index: -1;
+   }
+
+   header {
+       padding: 40px;
+       text-align: center;
+       border-bottom: 1px solid var(--border);
+       background: rgba(255, 255, 255, 0.8);
+       backdrop-filter: blur(10px);
+   }
+
+   header h1 {
+       font-size: 42px;
+       font-weight: 900;
+       background: linear-gradient(135deg, var(--text), var(--accent));
+       -webkit-background-clip: text;
+       -webkit-text-fill-color: transparent;
+       margin-bottom: 10px;
+   }
+
+   header p {
+       color: var(--accent);
+       letter-spacing: 2px;
+       font-weight: 600;
+       text-transform: uppercase;
+   }
+
+   .logo-container {
+       display: flex;
+       justify-content: center;
+       margin-bottom: 20px;
+   }
+
+   .main-logo {
+       width: 150px;
+       height: auto;
+       filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4)) drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.3));
+   }
+
+   main {
+       flex: 1;
+       padding: 40px 20px;
+       max-width: 1200px;
+       margin: 0 auto;
+       width: 100%;
+   }
+
+   .waiting-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+       gap: 24px;
+   }
+
+   .student-card {
+       background: var(--surface);
+       border: 1px solid var(--border);
+       border-radius: 24px;
+       padding: 30px;
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+       position: relative;
+       overflow: hidden;
+       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+   }
+
+   .student-card::before {
+       content: '';
+       position: absolute;
+       top: 0;
+       right: 0;
+       width: 6px;
+       height: 100%;
+       background: var(--accent);
+   }
+
+   .student-info {
+       flex: 1;
+   }
+
+   .student-name {
+       font-size: 24px;
+       font-weight: 700;
+       color: var(--text);
+       margin-bottom: 4px;
+   }
+
+   .queue-box {
+       background: linear-gradient(135deg, var(--accent), var(--accent2));
+       color: #fff;
+       padding: 10px 20px;
+       border-radius: 16px;
+       font-size: 32px;
+       font-weight: 900;
+       font-family: 'monospace';
+       box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
+   }
+
+   @keyframes slideIn {
+       from {
+           opacity: 0;
+           transform: translateY(30px) scale(0.9);
+       }
+
+       to {
+           opacity: 1;
+           transform: translateY(0) scale(1);
+       }
+   }
+
+   .empty-msg {
+       text-align: center;
+       padding: 100px;
+       grid-column: 1 / -1;
+       color: var(--border);
+       font-size: 24px;
+       font-weight: 700;
+       letter-spacing: 4px;
+   }
+
+   /* Call Effect for Top Card */
+   .top-card {
+       border-color: var(--accent);
+       transform: scale(1.05);
+       background: linear-gradient(rgba(14, 165, 233, 0.05), transparent);
+       box-shadow: 0 20px 60px rgba(14, 165, 233, 0.1);
+   }
+
+   .top-card .queue-box {
+       animation: pulse 2s infinite;
+   }
+
+   @keyframes pulse {
+       0% {
+           transform: scale(1);
+           box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.4);
+       }
+
+       70% {
+           transform: scale(1.05);
+           box-shadow: 0 0 0 15px rgba(0, 200, 255, 0);
+       }
+
+       100% {
+           transform: scale(1);
+           box-shadow: 0 0 0 0 rgba(0, 200, 255, 0);
+       }
+   }
